@@ -204,7 +204,7 @@ do_switch() {
 
   info "Done. Redeploy so services use Chitragupt:"
   echo "  cd ${DESKTOP} && sudo ./deploy.sh"
-  echo "  sudo ${DESKTOP}/jellyfin/applyTransmission.sh   # fix torrent download paths"
+  echo "  sudo ${DESKTOP}/jellyfin/applyTransmission.sh   # fix roddent download paths"
   if [[ -x "${DESKTOP}/jellyfin/applyTransmission.sh" ]]; then
     info "Applying Transmission paths now…"
     bash "${DESKTOP}/jellyfin/applyTransmission.sh" || warn "Transmission apply failed — run manually"

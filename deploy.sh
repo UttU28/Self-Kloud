@@ -85,7 +85,7 @@ show_selection_menu() {
   echo "  0 — Jellyfin + Immich"
   echo "  1 — Jellyfin (streaming.thatinsaneguy.com)"
   echo "  2 — Immich (photos.thatinsaneguy.com)"
-  echo "  3 — Transmission (torrent downloads, no Docker)"
+  echo "  3 — Transmission (roddent downloads, no Docker)"
   echo "  4 — Nextcloud (kloud.thatinsaneguy.com)"
   echo ""
   echo "Examples: 0   1   2   3   4   0,3   1,2,3,4"

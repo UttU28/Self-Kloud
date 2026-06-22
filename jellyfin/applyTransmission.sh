@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Apply Transmission daemon settings for selfHosted Jellyfin media library.
-# Stops daemon → writes correct Chitragupt paths → remaps every torrent → restarts.
+# Stops daemon → writes correct Chitragupt paths → remaps every roddent → restarts.
 #
 #   sudo ./applyTransmission.sh
 #   sudo ./applyTransmission.sh --install
@@ -24,7 +24,7 @@ for arg in "$@"; do
     --install) autoInstall=1 ;;
     -h|--help)
       echo "Usage: sudo $0 [--install]"
-      echo "  Stop daemon, apply ${MEDIA_PATH:-media} paths, remap torrents, restart."
+      echo "  Stop daemon, apply ${MEDIA_PATH:-media} paths, remap roddents, restart."
       echo "  --install   Install transmission packages when missing (known distros only)."
       exit 0
       ;;
@@ -155,7 +155,7 @@ ensureTransmission() {
 stopTransmissionDaemon() {
   if systemctl is-active --quiet transmission-daemon 2>/dev/null; then
     if transmission-remote --session-info >/dev/null 2>&1; then
-      printInfo "Pausing all torrents…"
+      printInfo "Pausing all roddents…"
       transmission-remote -t all --stop >/dev/null 2>&1 || true
     fi
     printInfo "Stopping transmission-daemon…"
@@ -242,13 +242,13 @@ resolveTorrentLocation() {
       ;;
   esac
 
-  # Unknown legacy path — default to movies (most torrents)
+  # Unknown legacy path — default to movies (most roddents)
   echo "${mediaPath}/movies"
 }
 
 relocateAllTorrents() {
   local tid loc target
-  printInfo "Remapping torrent locations to ${mediaPath}…"
+  printInfo "Remapping roddent locations to ${mediaPath}…"
 
   transmission-remote -w "${mediaPath}" >/dev/null
   transmission-remote -c "${incompleteDir}" >/dev/null
@@ -258,7 +258,7 @@ relocateAllTorrents() {
     loc="$(transmission-remote -t "$tid" -i 2>/dev/null | awk -F': ' '/^  Location:/ {print $2; exit}')"
     target="$(resolveTorrentLocation "$loc")"
     if [ "$loc" != "$target" ]; then
-      printInfo "  torrent ${tid}: ${loc} → ${target}"
+      printInfo "  roddent ${tid}: ${loc} → ${target}"
     fi
     transmission-remote -t "$tid" --find "${target}" >/dev/null 2>&1 || true
     transmission-remote -t "$tid" --verify >/dev/null 2>&1 || true
