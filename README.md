@@ -43,14 +43,118 @@ nextcloud/             # files + cloud
 
 Secrets (`.env`) and runtime data (`media/`, `library/`, `data/`, etc.) are gitignored — only configs and scripts are tracked.
 
-## Storage migration
+## Chitragupt disk (extra storage)
 
-To move data off Desktop onto the Chitragupt disk:
+By default, Jellyfin / Immich / Nextcloud data lives under `selfHosted/` on your Desktop. For a second disk (e.g. a large HDD), use **Chitragupt** — mounted at `/mnt/chitragupt`.
+
+### Two scripts, two jobs
+
+| File | Purpose |
+|------|---------|
+| `setup-chitragupt.sh` | **One-time migration** — fstab, copy data, rewrite `.env`, Nextcloud external storage |
+| `chitragupt.sh` | **Runtime helper** — sourced by deploy scripts; auto-mounts the disk if `.env` points at `/mnt/chitragupt` |
+
+You run `setup-chitragupt.sh` yourself (with `sudo`). Deploy scripts pull in `chitragupt.sh` automatically.
+
+### Before you start
+
+1. **Disk** — spare drive, partitioned and formatted as **ext4** (script assumes ext4).
+2. **Plug it in** — note which device it is (`/dev/sdb1`, `/dev/nvme1n1p1`, etc.).
+3. **Stack already deployed locally** (optional but typical) — `jellyfin/.env`, `immich/.env`, `nextcloud/.env` exist with data under `selfHosted/`.
+
+### Find your disk UUID
+
+Replace the hardcoded UUID in `setup-chitragupt.sh` with **your** disk’s UUID.
 
 ```bash
-sudo ./setup-chitragupt.sh mount    # fstab + folders
-sudo ./setup-chitragupt.sh copy     # copy data over
-sudo ./setup-chitragupt.sh switch   # point .env at /mnt/chitragupt
+# List block devices
+lsblk -f
+
+# Or for one partition (change sdb1 to yours)
+sudo blkid /dev/sdb1
 ```
+
+Example output:
+
+```
+/dev/sdb1: UUID="a1b2c3d4-e5f6-7890-abcd-ef1234567890" TYPE="ext4" ...
+```
+
+Copy the UUID (without quotes).
+
+### What to edit
+
+**1. `setup-chitragupt.sh`** (required on a new machine / new disk)
+
+```bash
+CHITRAGUPT_UUID="6707d4b1-94cc-4a94-bbbd-eede82969001"   # ← your UUID
+CHITRAGUPT_ROOT="/mnt/chitragupt"                        # ← change only if you want a different mount point
+```
+
+Line ~19 — default Linux user when run with `sudo` (files ownership):
+
+```bash
+echo "${SUDO_USER:-${USER:-dedsec995}}"   # ← your username if not dedsec995
+```
+
+**2. `nextcloud/.env`** (optional, after `switch`)
+
+`switch` writes `CHITRAGUPT_ROOT` for you. For manual setups, uncomment in `.env.example`:
+
+```bash
+CHITRAGUPT_ROOT=/mnt/chitragupt
+CHITRAGUPT_UUID=your-uuid-here
+JELLYFIN_MEDIA_PATH=/mnt/chitragupt/jellyfin/media
+```
+
+**3. Nothing else** — `chitragupt.sh` reads `CHITRAGUPT_ROOT` / `CHITRAGUPT_UUID` from the environment or `.env`; no UUID hardcoded there.
+
+### Migration commands
+
+All from `selfHosted/`:
+
+```bash
+sudo ./setup-chitragupt.sh mount        # fstab entry + folder layout (safe, no data moved)
+sudo ./setup-chitragupt.sh copy         # rsync Desktop → /mnt/chitragupt (keeps originals)
+# verify sizes: du -sh /mnt/chitragupt/*/*  and  du -sh ~/Desktop/selfHosted/*/*
+sudo ./setup-chitragupt.sh switch       # point jellyfin/immich/nextcloud .env at Chitragupt
+cd ~/Desktop/selfHosted && sudo ./deploy.sh
+sudo ./setup-chitragupt.sh nextcloud    # Jellyfin Media folder in Nextcloud UI
+# when everything works:
+sudo ./setup-chitragupt.sh cleanup-old  # type DELETE to remove old Desktop copies
+```
+
+Shortcut (mount + copy + switch + nextcloud, no delete):
+
+```bash
+sudo ./setup-chitragupt.sh all
+```
+
+| Command | What it does |
+|---------|----------------|
+| `mount` | Adds UUID to `/etc/fstab`, mounts `/mnt/chitragupt`, creates `jellyfin/`, `immich/`, `nextcloud/`, `backups/` |
+| `copy` | Stops containers, rsyncs media/config/library/db from Desktop |
+| `switch` | Updates `.env` paths; runs Transmission path fix |
+| `nextcloud` | External storage “Jellyfin Media” in Nextcloud |
+| `cleanup-old` | Removes old Desktop data dirs (interactive) |
+
+### Folder layout on the disk
+
+```
+/mnt/chitragupt/
+├── jellyfin/config
+├── jellyfin/media/{movies,tv,publicSpace,.incomplete}
+├── immich/library
+├── immich/postgres
+├── nextcloud/data
+├── nextcloud/db
+└── backups/
+```
+
+### After migration
+
+- Redeploy: `sudo ./deploy.sh`
+- Roddent paths: `sudo ./jellyfin/applyTransmission.sh`
+- If the disk is unmounted after reboot, deploy scripts call `ensure_chitragupt_mounted` from `chitragupt.sh` when paths use `/mnt/chitragupt`
 
 See `nextcloud/README.md` for Nextcloud-specific notes.
