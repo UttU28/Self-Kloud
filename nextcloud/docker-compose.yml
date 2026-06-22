@@ -1,0 +1,60 @@
+name: selfhosted-nextcloud
+
+services:
+  nextcloud-db:
+    image: mariadb:11.4
+    container_name: nextcloud-db
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-nextcloud}
+      MYSQL_USER: ${MYSQL_USER:-nextcloud}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ${NEXTCLOUD_DB_PATH:-./db}:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nextcloud-redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  nextcloud:
+    image: nextcloud:${NEXTCLOUD_VERSION:-latest}
+    container_name: nextcloud
+    restart: unless-stopped
+    depends_on:
+      nextcloud-db:
+        condition: service_healthy
+      nextcloud-redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${NEXTCLOUD_PORT:-9270}:80"
+    environment:
+      MYSQL_HOST: nextcloud-db
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-nextcloud}
+      MYSQL_USER: ${MYSQL_USER:-nextcloud}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: nextcloud-redis
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_DOMAIN}
+      OVERWRITEPROTOCOL: https
+      OVERWRITECLIURL: https://${NEXTCLOUD_DOMAIN}
+      TRUSTED_PROXIES: 172.16.0.0/12
+      APACHE_DISABLE_REWRITE_IP: 1
+      TZ: ${TZ:-Etc/UTC}
+    volumes:
+      - ${NEXTCLOUD_DATA_PATH:-./data}:/var/www/html
+      - ${JELLYFIN_MEDIA_PATH}:${JELLYFIN_MEDIA_PATH}

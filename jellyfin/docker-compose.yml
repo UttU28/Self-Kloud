@@ -1,0 +1,15 @@
+name: selfhosted-jellyfin
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    user: "${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}"
+    ports:
+      - "127.0.0.1:8096:8096"
+    env_file:
+      - .env
+    volumes:
+      - ${JELLYFIN_CONFIG_PATH:-./config}:/config
+      - ${MEDIA_PATH:-./media}:/media:ro

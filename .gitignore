@@ -1,0 +1,52 @@
+# --- Secrets (track .env.example only) ---
+.env
+.env.*
+!.env.example
+
+# --- Jellyfin runtime ---
+jellyfin/config/
+jellyfin/media/
+
+# --- Immich runtime ---
+immich/library/
+immich/postgres/
+
+# --- Nextcloud runtime ---
+nextcloud/data/
+nextcloud/db/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+
+# --- Docker local overrides ---
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# --- Certs / keys (should live on the host, not in git) ---
+*.pem
+*.key
+*.crt
+*.p12
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# --- Backups / temp ---
+*.bak
+*.tmp
+*.orig
