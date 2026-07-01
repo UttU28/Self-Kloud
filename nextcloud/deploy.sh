@@ -29,8 +29,8 @@ banner() {
 }
 
 NEXTCLOUD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../../deploy-lib.sh
-source "${NEXTCLOUD_DIR}/../../deploy-lib.sh"
+# shellcheck source=../../deployLib.sh
+source "${NEXTCLOUD_DIR}/../../dktp/deployLib.sh"
 # shellcheck disable=SC1091
 source "${NEXTCLOUD_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0

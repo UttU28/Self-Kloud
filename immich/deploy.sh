@@ -19,8 +19,8 @@ printError()   { echo -e "${RED}[immich]${NC} $*" >&2; }
 printStep()    { echo -e "${BLUE}[immich]${NC} $*"; }
 
 IMMICH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../../deploy-lib.sh
-source "${IMMICH_DIR}/../../deploy-lib.sh"
+# shellcheck source=../../deployLib.sh
+source "${IMMICH_DIR}/../../dktp/deployLib.sh"
 # shellcheck disable=SC1091
 source "${IMMICH_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0

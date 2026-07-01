@@ -4,6 +4,7 @@
 #
 #   sudo ./applyTransmission.sh
 #   sudo ./applyTransmission.sh --install
+#   sudo ./applyTransmission.sh --force   # re-apply even when daemon is healthy
 #
 # Reads MEDIA_PATH from jellyfin/.env (default: jellyfin/media).
 
@@ -19,17 +20,26 @@ printWarn() { echo -e "${YELLOW}[transmission]${NC} $*"; }
 printError() { echo -e "${RED}[transmission]${NC} $*" >&2; }
 
 autoInstall=0
+forceApply=0
 for arg in "$@"; do
   case "$arg" in
     --install) autoInstall=1 ;;
+    --force) forceApply=1 ;;
     -h|--help)
-      echo "Usage: sudo $0 [--install]"
+      echo "Usage: sudo $0 [--install] [--force]"
       echo "  Stop daemon, apply ${MEDIA_PATH:-media} paths, remap roddents, restart."
       echo "  --install   Install transmission packages when missing (known distros only)."
+      echo "  --force     Re-apply settings even when daemon is already running OK."
       exit 0
       ;;
   esac
 done
+
+transmissionDaemonHealthy() {
+  command -v transmission-remote >/dev/null 2>&1 \
+    && systemctl is-active --quiet transmission-daemon 2>/dev/null \
+    && transmission-remote --session-info >/dev/null 2>&1
+}
 
 transmissionIsInstalled() {
   command -v transmission-daemon >/dev/null 2>&1 && command -v transmission-remote >/dev/null 2>&1
@@ -279,6 +289,16 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 ensureTransmission
+
+if [ "$forceApply" -eq 0 ] && transmissionDaemonHealthy; then
+  printInfo "transmission-daemon is running and RPC OK — skipped (no stop/restart)."
+  printInfo "To re-apply paths/settings anyway: sudo ${jellyfinDir}/applyTransmission.sh --force"
+  exit 0
+fi
+
+if ! transmissionDaemonHealthy; then
+  printWarn "transmission-daemon not running or RPC unreachable — will stop, reconfigure, and restart."
+fi
 
 if [ ! -f "$settingsTemplate" ]; then
   printError "Missing settings template: ${settingsTemplate}"

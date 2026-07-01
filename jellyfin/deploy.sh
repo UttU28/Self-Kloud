@@ -20,8 +20,8 @@ printError()   { echo -e "${RED}[jellyfin]${NC} $*" >&2; }
 printStep()    { echo -e "${BLUE}[jellyfin]${NC} $*"; }
 
 JELLYFIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../../deploy-lib.sh
-source "${JELLYFIN_DIR}/../../deploy-lib.sh"
+# shellcheck source=../../deployLib.sh
+source "${JELLYFIN_DIR}/../../dktp/deployLib.sh"
 # shellcheck disable=SC1091
 source "${JELLYFIN_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0
@@ -178,7 +178,7 @@ deployTransmission() {
     printWarning "Transmission setup needs sudo — run: sudo ${script}"
     return 0
   fi
-  printStep "Transmission: configure daemon for ${MEDIA_PATH}"
+  printStep "Transmission (skipped if daemon already running and healthy)"
   bash "$script"
 }
 

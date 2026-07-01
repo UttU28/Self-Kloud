@@ -267,7 +267,7 @@ deploy_transmission() {
     return 1
   fi
 
-  step "Running ${TRANSMISSION_SCRIPT}"
+  step "Transmission (skipped if daemon already running and healthy)"
   bash "$TRANSMISSION_SCRIPT"
   info "Transmission deploy finished."
 }
