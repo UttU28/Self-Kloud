@@ -20,6 +20,8 @@ printError()   { echo -e "${RED}[jellyfin]${NC} $*" >&2; }
 printStep()    { echo -e "${BLUE}[jellyfin]${NC} $*"; }
 
 JELLYFIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../../deploy-lib.sh
+source "${JELLYFIN_DIR}/../../deploy-lib.sh"
 # shellcheck disable=SC1091
 source "${JELLYFIN_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0
@@ -126,8 +128,11 @@ installNginxSite() {
 
 runCertbot() {
   local domain="${JELLYFIN_DOMAIN:-streaming.thatinsaneguy.com}"
-  local le_cert="/etc/letsencrypt/live/${domain}/fullchain.pem"
-  if [ -f "$le_cert" ] || ! command -v certbot &>/dev/null; then
+  if le_cert_exists "${domain}"; then
+    printStatus "Certificate exists for ${domain} — skipped certbot."
+    return 0
+  fi
+  if ! command -v certbot &>/dev/null; then
     return 0
   fi
   printStep "Certbot: ${domain}"
@@ -135,7 +140,7 @@ runCertbot() {
     certbot --nginx -d "${domain}" --non-interactive --agree-tos -m "${CERTBOT_EMAIL}" --redirect \
       || printWarning "Certbot issue for ${domain}"
   else
-    certbot --nginx -d "${domain}" --non-interactive --agree-tos --keep-until-expiring \
+    certbot --nginx -d "${domain}" --non-interactive --agree-tos --redirect \
       || printWarning "Certbot issue for ${domain}"
   fi
 }

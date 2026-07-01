@@ -19,6 +19,8 @@ printError()   { echo -e "${RED}[immich]${NC} $*" >&2; }
 printStep()    { echo -e "${BLUE}[immich]${NC} $*"; }
 
 IMMICH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../../deploy-lib.sh
+source "${IMMICH_DIR}/../../deploy-lib.sh"
 # shellcheck disable=SC1091
 source "${IMMICH_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0
@@ -116,8 +118,11 @@ installNginxSite() {
 
 runCertbot() {
   local domain="${IMMICH_DOMAIN:-photos.thatinsaneguy.com}"
-  local le_cert="/etc/letsencrypt/live/${domain}/fullchain.pem"
-  if [ -f "$le_cert" ] || ! command -v certbot &>/dev/null; then
+  if le_cert_exists "${domain}"; then
+    printStatus "Certificate exists for ${domain} — skipped certbot."
+    return 0
+  fi
+  if ! command -v certbot &>/dev/null; then
     return 0
   fi
   printStep "Certbot: ${domain}"
@@ -125,7 +130,7 @@ runCertbot() {
     certbot --nginx -d "${domain}" --non-interactive --agree-tos -m "${CERTBOT_EMAIL}" --redirect \
       || printWarning "Certbot issue for ${domain}"
   else
-    certbot --nginx -d "${domain}" --non-interactive --agree-tos --keep-until-expiring \
+    certbot --nginx -d "${domain}" --non-interactive --agree-tos --redirect \
       || printWarning "Certbot issue for ${domain}"
   fi
 }

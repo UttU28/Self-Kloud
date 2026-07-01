@@ -33,12 +33,12 @@ sudo bash deploy.sh 0
 ## Layout
 
 ```
-deploy.sh              # top-level menu — deploy one or more services
-setup-chitragupt.sh    # optional: move storage to /mnt/chitragupt
-chitragupt.sh          # shared mount helpers (sourced by deploy scripts)
-jellyfin/              # streaming + transmission
-immich/                # photos
-nextcloud/             # files + cloud
+deploy.sh           # top-level menu — deploy one or more services
+chitragupt.sh       # SSD at /mnt/chitragupt — setup + mount helper (sourced by deploy)
+bkp-chitragupt.sh   # HDD at /mnt/bkp-chitragupt — setup + daily mirror
+jellyfin/           # streaming + transmission
+immich/             # photos
+nextcloud/          # files + cloud
 ```
 
 Secrets (`.env`) and runtime data (`media/`, `library/`, `data/`, etc.) are gitignored — only configs and scripts are tracked.
@@ -47,14 +47,13 @@ Secrets (`.env`) and runtime data (`media/`, `library/`, `data/`, etc.) are giti
 
 By default, Jellyfin / Immich / Nextcloud data lives under `selfHosted/` on your Desktop. For a second disk (e.g. a large HDD), use **Chitragupt** — mounted at `/mnt/chitragupt`.
 
-### Two scripts, two jobs
+### One script — setup and runtime
 
 | File | Purpose |
 |------|---------|
-| `setup-chitragupt.sh` | **One-time migration** — fstab, copy data, rewrite `.env`, Nextcloud external storage |
-| `chitragupt.sh` | **Runtime helper** — sourced by deploy scripts; auto-mounts the disk if `.env` points at `/mnt/chitragupt` |
+| `chitragupt.sh` | **Setup** (`sudo ./chitragupt.sh mount\|copy\|switch\|…`) + **runtime helper** (sourced by deploy scripts; auto-mounts when `.env` points at `/mnt/chitragupt`) |
 
-You run `setup-chitragupt.sh` yourself (with `sudo`). Deploy scripts pull in `chitragupt.sh` automatically.
+Run setup commands yourself with `sudo`. Deploy scripts `source` the same file for `ensure_chitragupt_mounted`.
 
 ### Before you start
 
@@ -64,7 +63,7 @@ You run `setup-chitragupt.sh` yourself (with `sudo`). Deploy scripts pull in `ch
 
 ### Find your disk UUID
 
-Replace the hardcoded UUID in `setup-chitragupt.sh` with **your** disk’s UUID.
+Replace the hardcoded UUID at the top of `chitragupt.sh` with **your** disk’s UUID.
 
 ```bash
 # List block devices
@@ -84,7 +83,7 @@ Copy the UUID (without quotes).
 
 ### What to edit
 
-**1. `setup-chitragupt.sh`** (required on a new machine / new disk)
+**1. `chitragupt.sh`** (required on a new machine / new disk)
 
 ```bash
 CHITRAGUPT_UUID="6707d4b1-94cc-4a94-bbbd-eede82969001"   # ← your UUID
@@ -114,20 +113,20 @@ JELLYFIN_MEDIA_PATH=/mnt/chitragupt/jellyfin/media
 All from `selfHosted/`:
 
 ```bash
-sudo ./setup-chitragupt.sh mount        # fstab entry + folder layout (safe, no data moved)
-sudo ./setup-chitragupt.sh copy         # rsync Desktop → /mnt/chitragupt (keeps originals)
+sudo ./chitragupt.sh mount        # fstab entry + folder layout (safe, no data moved)
+sudo ./chitragupt.sh copy         # rsync selfHosted → /mnt/chitragupt (keeps originals)
 # verify sizes: du -sh /mnt/chitragupt/*/*  and  du -sh ~/Desktop/selfHosted/*/*
-sudo ./setup-chitragupt.sh switch       # point jellyfin/immich/nextcloud .env at Chitragupt
+sudo ./chitragupt.sh switch       # point jellyfin/immich/nextcloud .env at Chitragupt
 cd ~/Desktop/selfHosted && sudo ./deploy.sh
-sudo ./setup-chitragupt.sh nextcloud    # Jellyfin Media folder in Nextcloud UI
+sudo ./chitragupt.sh nextcloud    # Jellyfin Media folder in Nextcloud UI
 # when everything works:
-sudo ./setup-chitragupt.sh cleanup-old  # type DELETE to remove old Desktop copies
+sudo ./chitragupt.sh cleanup-old  # type DELETE to remove old Desktop copies
 ```
 
 Shortcut (mount + copy + switch + nextcloud, no delete):
 
 ```bash
-sudo ./setup-chitragupt.sh all
+sudo ./chitragupt.sh all
 ```
 
 | Command | What it does |
@@ -158,3 +157,33 @@ sudo ./setup-chitragupt.sh all
 - If the disk is unmounted after reboot, deploy scripts call `ensure_chitragupt_mounted` from `chitragupt.sh` when paths use `/mnt/chitragupt`
 
 See `nextcloud/README.md` for Nextcloud-specific notes.
+
+## Backup disk (bkp-chitragupt)
+
+Mirror the Chitragupt SSD to the HGST HDD at `/mnt/bkp-chitragupt`. Daily rsync at **4:00 AM**.
+
+### One script — setup and backup
+
+| File | Purpose |
+|------|---------|
+| `bkp-chitragupt.sh` | **Setup** (`mount\|install\|backup\|all`) + **rsync mirror** (installed to `/usr/local/sbin` for cron) |
+
+### Setup commands
+
+All from `selfHosted/`:
+
+```bash
+sudo ./bkp-chitragupt.sh mount     # format HDD + fstab + mount /mnt/bkp-chitragupt
+sudo ./bkp-chitragupt.sh install   # install to /usr/local/sbin + systemd timer at 4 AM
+sudo ./bkp-chitragupt.sh backup    # run first mirror now (~311 GB, takes a while)
+```
+
+Or all at once:
+
+```bash
+sudo ./bkp-chitragupt.sh all
+```
+
+Edit `BKP_HDD_PARTITION="/dev/sdc1"` at the top of `bkp-chitragupt.sh` if your HDD is a different device.
+
+Log: `/var/log/bkp-chitragupt.log`
