@@ -10,6 +10,10 @@ services:
       - "0.0.0.0:8096:8096"
     env_file:
       - .env
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,video,utility
+    gpus: all
     volumes:
       - ${JELLYFIN_CONFIG_PATH:-./config}:/config
       - ${MEDIA_PATH:-./media}:/media:ro

@@ -23,7 +23,7 @@ cp nextcloud/.env.example nextcloud/.env
 sudo bash deploy.sh
 
 # Or pick services directly:
-#   0 = Jellyfin + Immich   1 = Jellyfin   2 = Immich
+#   0 = Jellyfin + Immich + Nextcloud   1 = Jellyfin   2 = Immich
 #   3 = Transmission        4 = Nextcloud
 sudo bash deploy.sh 0
 ```
@@ -34,7 +34,7 @@ sudo bash deploy.sh 0
 
 ```
 deploy.sh           # top-level menu — deploy one or more services
-chitragupt.sh       # SSD at /mnt/chitragupt — setup + mount helper (sourced by deploy)
+chitragupt.sh       # Data disk at /mnt/chitragupt — setup + mount helper (sourced by deploy)
 bkp-chitragupt.sh   # HDD at /mnt/bkp-chitragupt — setup + daily mirror
 jellyfin/           # streaming + transmission
 immich/             # photos
@@ -86,7 +86,7 @@ Copy the UUID (without quotes).
 **1. `chitragupt.sh`** (required on a new machine / new disk)
 
 ```bash
-CHITRAGUPT_UUID="6707d4b1-94cc-4a94-bbbd-eede82969001"   # ← your UUID
+CHITRAGUPT_UUID="7a4fd5f5-fe98-4624-9997-528328f3f147"   # ← your UUID
 CHITRAGUPT_ROOT="/mnt/chitragupt"                        # ← change only if you want a different mount point
 ```
 
@@ -160,7 +160,7 @@ See `nextcloud/README.md` for Nextcloud-specific notes.
 
 ## Backup disk (bkp-chitragupt)
 
-Mirror the Chitragupt SSD to the HGST HDD at `/mnt/bkp-chitragupt`. Daily rsync at **4:00 AM**.
+Mirror the Chitragupt data disk to the HGST HDD at `/mnt/bkp-chitragupt`. Daily rsync at **4:00 AM**.
 
 ### One script — setup and backup
 

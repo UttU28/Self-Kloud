@@ -395,7 +395,7 @@ docker exec -u www-data nextcloud php occ maintenance:mode --off
 Deploy everything from Desktop:
 
 ```bash
-sudo bash ~/Desktop/deploy.sh 5          # Jellyfin + Immich + Transmission
+sudo bash ~/Desktop/deploy.sh 5          # Jellyfin + Immich + Transmission + Nextcloud
 sudo bash ~/Desktop/selfHosted/deploy.sh 4   # Nextcloud only
 ```
 

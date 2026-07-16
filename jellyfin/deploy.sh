@@ -55,6 +55,63 @@ loadEnv() {
   export JELLYFIN_GID="${JELLYFIN_GID:-1000}"
 }
 
+checkNvidiaContainerToolkit() {
+  if [ "${JELLYFIN_GPU:-nvidia}" = "none" ]; then
+    return 0
+  fi
+  if ! command -v nvidia-smi &>/dev/null; then
+    printWarning "nvidia-smi not found — GPU transcoding will not work."
+    return 0
+  fi
+  if ! docker info 2>/dev/null | grep -qi nvidia; then
+    printWarning "Docker NVIDIA runtime not configured."
+    printWarning "Install and configure, then restart Docker:"
+    echo "  sudo pacman -S nvidia-container-toolkit"
+    echo "  sudo nvidia-ctk runtime configure --runtime=docker"
+    echo "  sudo systemctl restart docker"
+    return 1
+  fi
+  printStatus "NVIDIA Container Toolkit detected for Docker."
+}
+
+configureGpuEncoding() {
+  local enc="${JELLYFIN_CONFIG_PATH}/config/encoding.xml"
+
+  if [ "${JELLYFIN_GPU:-nvidia}" = "none" ]; then
+    printWarning "JELLYFIN_GPU=none — leaving encoding.xml unchanged."
+    return 0
+  fi
+  if ! command -v nvidia-smi &>/dev/null; then
+    printWarning "nvidia-smi not found — skipping encoding.xml GPU settings."
+    return 0
+  fi
+  if [ ! -f "$enc" ]; then
+    printWarning "No encoding.xml yet — enable NVENC in Dashboard → Playback after first start."
+    return 0
+  fi
+
+  printStep "Configuring Jellyfin encoding.xml for NVIDIA NVENC…"
+  cp -a "$enc" "${enc}.bak.$(date +%Y%m%d%H%M%S)"
+
+  sed -i \
+    -e 's|<HardwareAccelerationType>none</HardwareAccelerationType>|<HardwareAccelerationType>nvenc</HardwareAccelerationType>|g' \
+    -e 's|<EnableTonemapping>false</EnableTonemapping>|<EnableTonemapping>true</EnableTonemapping>|g' \
+    "$enc"
+
+  if ! grep -q '<string>hevc</string>' "$enc"; then
+    sed -i '/<string>h264<\/string>/a\    <string>hevc</string>' "$enc"
+  fi
+  if ! grep -q '<string>vp9</string>' "$enc"; then
+    sed -i '/<string>hevc<\/string>/a\    <string>vp9</string>' "$enc" 2>/dev/null \
+      || sed -i '/<string>h264<\/string>/a\    <string>vp9</string>' "$enc"
+  fi
+  if ! grep -q '<string>mpeg2video</string>' "$enc"; then
+    sed -i '/<string>vc1<\/string>/a\    <string>mpeg2video</string>' "$enc"
+  fi
+
+  printStatus "encoding.xml → HardwareAccelerationType=nvenc, tonemapping=on"
+}
+
 fixConfigOwnership() {
   local want="${JELLYFIN_UID}:${JELLYFIN_GID}"
   local have
@@ -94,6 +151,8 @@ deployDocker() {
   mkdir -p "${MEDIA_PATH}/movies" "${MEDIA_PATH}/tv" "${MEDIA_PATH}/parvatiNambyar" "${JELLYFIN_CONFIG_PATH}"
   ensure_chitragupt_mounted || exit 1
   fixConfigOwnership
+  configureGpuEncoding
+  checkNvidiaContainerToolkit || printWarning "Continuing without confirmed NVIDIA Docker runtime."
 
   docker rm -f jellyfin 2>/dev/null || true
 
@@ -101,6 +160,15 @@ deployDocker() {
   $compose_cmd --env-file .env pull jellyfin
   $compose_cmd --env-file .env up -d
   printStatus "Jellyfin started on 127.0.0.1:8096"
+
+  if [ "${JELLYFIN_GPU:-nvidia}" != "none" ] && command -v nvidia-smi &>/dev/null; then
+    sleep 3
+    if docker exec jellyfin nvidia-smi &>/dev/null; then
+      printStatus "GPU visible inside Jellyfin container (NVENC ready)."
+    else
+      printWarning "GPU not visible inside container — finish NVIDIA toolkit setup and redeploy."
+    fi
+  fi
 }
 
 installNginxSite() {

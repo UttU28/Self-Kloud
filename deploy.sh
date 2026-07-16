@@ -2,14 +2,14 @@
 # Deploy selfHosted media stack: Jellyfin, Immich, Transmission, Nextcloud.
 #
 #   sudo bash ~/Desktop/selfHosted/deploy.sh           # interactive menu
-#   sudo bash ~/Desktop/selfHosted/deploy.sh 0       # Jellyfin + Immich
+#   sudo bash ~/Desktop/selfHosted/deploy.sh 0       # Jellyfin + Immich + Nextcloud
 #   sudo bash ~/Desktop/selfHosted/deploy.sh 1       # Jellyfin only
 #   sudo bash ~/Desktop/selfHosted/deploy.sh 2       # Immich only
 #   sudo bash ~/Desktop/selfHosted/deploy.sh 3       # Transmission only (no Docker)
 #   sudo bash ~/Desktop/selfHosted/deploy.sh 4       # Nextcloud only
 #   sudo bash ~/Desktop/selfHosted/deploy.sh 0,3     # Jellyfin + Immich + Transmission
 #
-#   0 = Jellyfin + Immich   1 = Jellyfin   2 = Immich   3 = Transmission   4 = Nextcloud
+#   0 = Jellyfin + Immich + Nextcloud   1 = Jellyfin   2 = Immich   3 = Transmission   4 = Nextcloud
 #
 # Optional env: CERTBOT_EMAIL, DOCKER_ONLY=1
 
@@ -53,7 +53,7 @@ usage() {
 Usage: deploy.sh [selection]
 
 Selection (prompts interactively when omitted):
-  0       Jellyfin + Immich
+  0       Jellyfin + Immich + Nextcloud
   1       Jellyfin (+ streaming nginx)
   2       Immich (+ photos nginx)
   3       Transmission daemon only (system service, no Docker)
@@ -82,7 +82,7 @@ is_numeric_selection() {
 show_selection_menu() {
   echo ""
   echo -e "${CYAN}Select services to deploy${NC}"
-  echo "  0 — Jellyfin + Immich"
+  echo "  0 — Jellyfin + Immich + Nextcloud"
   echo "  1 — Jellyfin (streaming.thatinsaneguy.com)"
   echo "  2 — Immich (photos.thatinsaneguy.com)"
   echo "  3 — Transmission (roddent downloads, no Docker)"
@@ -104,6 +104,7 @@ parse_selection() {
   if [[ "$raw" == "0" ]]; then
     RUN_JELLYFIN=1
     RUN_IMMICH=1
+    RUN_NEXTCLOUD=1
     return 0
   fi
 
@@ -114,6 +115,7 @@ parse_selection() {
       0)
         RUN_JELLYFIN=1
         RUN_IMMICH=1
+        RUN_NEXTCLOUD=1
         return 0
         ;;
       1) RUN_JELLYFIN=1 ;;

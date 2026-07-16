@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Chitragupt SSD — mount helper (source) + setup commands (run directly).
+# Chitragupt data disk — mount helper (source) + setup commands (run directly).
 #
 # Source from deploy scripts:
 #   source "${SELFHOSTED_ROOT}/chitragupt.sh"
@@ -13,7 +13,7 @@
 #   sudo ./chitragupt.sh cleanup-old  # DELETE old Desktop copies (interactive)
 #   sudo ./chitragupt.sh all          # mount + copy + switch + nextcloud (no delete)
 
-CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-6707d4b1-94cc-4a94-bbbd-eede82969001}"
+CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-7a4fd5f5-fe98-4624-9997-528328f3f147}"
 CHITRAGUPT_ROOT="${CHITRAGUPT_ROOT:-/mnt/chitragupt}"
 
 _chitragupt_info() { echo -e "\033[0;34m[chitragupt]\033[0m $*"; }
@@ -275,7 +275,8 @@ _chitragupt_main() {
     update_env_file "${DESKTOP}/nextcloud/.env" \
       "NEXTCLOUD_DATA_PATH=${CHITRAGUPT_ROOT}/nextcloud/data" \
       "NEXTCLOUD_DB_PATH=${CHITRAGUPT_ROOT}/nextcloud/db" \
-      "CHITRAGUPT_ROOT=${CHITRAGUPT_ROOT}"
+      "CHITRAGUPT_ROOT=${CHITRAGUPT_ROOT}" \
+      "CHITRAGUPT_UUID=${CHITRAGUPT_UUID}"
 
     info "Done. Redeploy so services use Chitragupt:"
     echo "  cd ${DESKTOP} && sudo ./deploy.sh"
@@ -383,7 +384,7 @@ Recommended flow:
   sudo $0 nextcloud
   sudo $0 cleanup-old
 
-Disk UUID: ${CHITRAGUPT_UUID} (447 GB ext4)
+Disk UUID: ${CHITRAGUPT_UUID} (1 TB ext4, /dev/sda1)
 EOF
   }
 

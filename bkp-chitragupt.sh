@@ -10,7 +10,7 @@
 BKP_HDD_PARTITION="${BKP_HDD_PARTITION:-/dev/sdc1}"
 BKP_CHITRAGUPT_ROOT="${BKP_CHITRAGUPT_ROOT:-/mnt/bkp-chitragupt}"
 CHITRAGUPT_ROOT="${CHITRAGUPT_ROOT:-/mnt/chitragupt}"
-CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-6707d4b1-94cc-4a94-bbbd-eede82969001}"
+CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-7a4fd5f5-fe98-4624-9997-528328f3f147}"
 BKP_LOG="${BKP_LOG:-/var/log/bkp-chitragupt.log}"
 BKP_LOCK="${BKP_LOCK:-/run/bkp-chitragupt.lock}"
 BKP_INSTALLED="/usr/local/sbin/bkp-chitragupt.sh"
@@ -247,7 +247,7 @@ Usage: sudo $0 {mount|install|backup|all}
   all      mount + install + backup
 
 HDD partition: ${BKP_HDD_PARTITION} (edit BKP_HDD_PARTITION at top of this script if needed)
-Source SSD:    ${CHITRAGUPT_ROOT} (UUID ${CHITRAGUPT_UUID})
+Source disk:   ${CHITRAGUPT_ROOT} (UUID ${CHITRAGUPT_UUID})
 Log:           ${BKP_LOG}
 EOF
   }
