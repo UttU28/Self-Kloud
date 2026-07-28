@@ -366,12 +366,14 @@ setTransmissionAcls() {
 relocateScript="${jellyfinDir}/relocateCompletedTorrents.sh"
 chmod +x "$relocateScript" 2>/dev/null || true
 
-python3 - "$settingsTemplate" "$userSettings" "$mediaPath" "$incompleteDir" <<'PY'
+transmissionProxyUrl="${TRANSMISSION_PROXY_URL:-}"
+python3 - "$settingsTemplate" "$userSettings" "$mediaPath" "$incompleteDir" "$transmissionProxyUrl" <<'PY'
 import json
+import os
 import sys
 from pathlib import Path
 
-template, userOut, media, incomplete = sys.argv[1:5]
+template, userOut, media, incomplete, proxyFromEnv = sys.argv[1:6]
 data = json.loads(Path(template).read_text())
 data["download-dir"] = media
 data["incomplete-dir"] = incomplete
@@ -384,6 +386,11 @@ data["script-torrent-done-enabled"] = False
 data["script-torrent-done-filename"] = ""
 data["script-torrent-done-seeding-enabled"] = False
 data["script-torrent-done-seeding-filename"] = ""
+proxyUrl = (proxyFromEnv or os.environ.get("TRANSMISSION_PROXY_URL") or "").strip()
+if proxyUrl:
+    data["proxy_url"] = proxyUrl
+else:
+    data["proxy_url"] = None
 Path(userOut).parent.mkdir(parents=True, exist_ok=True)
 Path(userOut).write_text(json.dumps(data, indent=4) + "\n")
 print(userOut)
