@@ -2,7 +2,9 @@ name: selfhosted-jellyfin
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin:latest
+    # Official Hub (stable): jellyfin/jellyfin:latest
+    # Custom forks (uttu28 hide-items): set JELLYFIN_IMAGE in .env
+    image: ${JELLYFIN_IMAGE:-jellyfin/jellyfin:hide-items-amd64}
     container_name: jellyfin
     restart: unless-stopped
     user: "${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}"
@@ -16,4 +18,7 @@ services:
     gpus: all
     volumes:
       - ${JELLYFIN_CONFIG_PATH:-./config}:/config
-      - ${MEDIA_PATH:-./media}:/media:ro
+      # :ro is safer (Jellyfin cannot delete/modify library files).
+      # Drop :ro so Dashboard "Delete" can remove files on disk.
+      - ${MEDIA_PATH:-./media}:/media
+      # - ${MEDIA_PATH:-./media}:/media:ro

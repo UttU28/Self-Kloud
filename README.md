@@ -2,6 +2,48 @@
 
 Personal media and cloud stack — deploy scripts for Docker services, nginx, and Let's Encrypt on your own machine.
 
+## Disclaimer — custom Jellyfin
+
+This stack does **not** run Docker Hub `jellyfin/jellyfin:latest` (stable **10.11.11**). It builds a **local** image from GitHub forks (`uttu28/jellyfin` + `uttu28/jellyfin-web`, branch `feature/hide-items-from-library`) via `jellyfin-packaging`. That is **Jellyfin 12.x** (master / RC), not the Hub stable line.
+
+- **Git clone does not include the Docker image.** The image lives only on the machine that built it.
+- **Do not switch back to Hub `latest` (10.11)** after this config has run 12.x unless you restore a 10.11 backup. Going down a major version can break the database.
+- Forks and packaging are **not** the same as `docker pull`. Hub `latest` is older stable; the custom image is current `feature/hide-items-from-library` **at build time**.
+- `jellyfin-packaging` is a git submodule (official packaging repo). A clone without `--recurse-submodules` leaves that folder empty until you init it or run `jellyfin/deploy.sh`.
+
+### New machine
+
+```bash
+git clone --recurse-submodules https://github.com/UttU28/selfHosted.git
+cd selfHosted
+cp jellyfin/.env.example jellyfin/.env   # fill paths / API key
+sudo bash jellyfin/deploy.sh             # first run builds hide-items-amd64 (several minutes)
+```
+
+Later deploys **reuse** `jellyfin/jellyfin:hide-items-amd64` if it already exists. Rebuild after you push fork changes:
+
+```bash
+sudo bash jellyfin/deploy.sh --rebuild-image
+```
+
+| Piece | On clone / deploy |
+|-------|-------------------|
+| Compose, deploy scripts, nginx | From this repo |
+| `jellyfin-packaging` (Dockerfile / `build.py`) | Submodule **commit you last pushed** here, not live packaging `master` |
+| Server + web forks | **Latest** of `feature/hide-items-from-library` on GitHub **when the image is built** |
+| Docker Hub `jellyfin/jellyfin:latest` | **Not** pulled while `JELLYFIN_IMAGE_SOURCE=custom` |
+| Image on disk | Built on **that** machine; not in git |
+
+### Switch back to official Hub (commented in compose / `.env`)
+
+```bash
+# jellyfin/.env
+JELLYFIN_IMAGE_SOURCE=official
+JELLYFIN_IMAGE=jellyfin/jellyfin:latest
+```
+
+That pulls stable 10.11.x. Media `:ro` (Jellyfin cannot delete files) is also commented in `jellyfin/docker-compose.yml` if you want the safer mount again.
+
 ## Services
 
 | Service | URL | Folder |

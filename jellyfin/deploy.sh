@@ -3,6 +3,7 @@
 #
 #   ./deploy.sh
 #   ./deploy.sh --docker-only
+#   ./deploy.sh --rebuild-image       # rebuild uttu28 forks into jellyfin/jellyfin:hide-items-amd64
 #   sudo ./deploy.sh
 #   sudo ./deploy.sh --transmission   # also configure transmission-daemon for media/
 
@@ -26,14 +27,17 @@ source "${JELLYFIN_DIR}/../../dktp/deployLib.sh"
 source "${JELLYFIN_DIR}/../chitragupt.sh"
 DOCKER_ONLY=0
 RUN_TRANSMISSION=0
+REBUILD_IMAGE=0
 
 for arg in "$@"; do
   case "$arg" in
     --docker-only) DOCKER_ONLY=1 ;;
     --transmission) RUN_TRANSMISSION=1 ;;
+    --rebuild-image) REBUILD_IMAGE=1 ;;
     -h|--help)
-      echo "Usage: $0 [--docker-only] [--transmission]"
-      echo "  --transmission   Configure system transmission-daemon (requires sudo)"
+      echo "Usage: $0 [--docker-only] [--transmission] [--rebuild-image]"
+      echo "  --transmission    Configure system transmission-daemon (requires sudo)"
+      echo "  --rebuild-image   Rebuild the custom Jellyfin image from jellyfin-packaging forks"
       exit 0
       ;;
   esac
@@ -53,6 +57,12 @@ loadEnv() {
   export CHITRAGUPT_ROOT="${CHITRAGUPT_ROOT:-/mnt/chitragupt}"
   export JELLYFIN_UID="${JELLYFIN_UID:-1000}"
   export JELLYFIN_GID="${JELLYFIN_GID:-1000}"
+  export JELLYFIN_IMAGE_SOURCE="${JELLYFIN_IMAGE_SOURCE:-custom}"
+  export JELLYFIN_IMAGE="${JELLYFIN_IMAGE:-jellyfin/jellyfin:hide-items-amd64}"
+  export JELLYFIN_FORK_SERVER="${JELLYFIN_FORK_SERVER:-https://github.com/uttu28/jellyfin.git}"
+  export JELLYFIN_FORK_WEB="${JELLYFIN_FORK_WEB:-https://github.com/uttu28/jellyfin-web.git}"
+  export JELLYFIN_FORK_BRANCH="${JELLYFIN_FORK_BRANCH:-feature/hide-items-from-library}"
+  export JELLYFIN_PACKAGING_DIR="${JELLYFIN_PACKAGING_DIR:-${JELLYFIN_DIR}/../jellyfin-packaging}"
 }
 
 checkNvidiaContainerToolkit() {
@@ -112,6 +122,85 @@ configureGpuEncoding() {
   printStatus "encoding.xml → HardwareAccelerationType=nvenc, tonemapping=on"
 }
 
+# Custom image = jellyfin-packaging Docker build with server/web remotes pointed at uttu28.
+# Official image = docker compose pull of jellyfin/jellyfin:latest (stable Hub).
+checkoutFork() {
+  local dir="$1"
+  local url="$2"
+  local branch="$3"
+  if [ ! -d "${dir}/.git" ]; then
+    printError "Missing git checkout: ${dir}"
+    return 1
+  fi
+  git -C "$dir" remote set-url origin "$url"
+  git -C "$dir" fetch origin
+  git -C "$dir" checkout "$branch"
+  git -C "$dir" pull --ff-only origin "$branch" || true
+}
+
+ensurePackagingCheckout() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
+  local selfhosted_root
+  selfhosted_root="$(cd "${JELLYFIN_DIR}/.." && pwd)"
+
+  # Empty dir after `git clone` without --recurse-submodules
+  if [ ! -d "${pack}/.git" ]; then
+    if [ -f "${selfhosted_root}/.gitmodules" ] && [ -d "${selfhosted_root}/.git" ]; then
+      printStep "Initializing jellyfin-packaging submodule…"
+      git -C "$selfhosted_root" submodule update --init jellyfin-packaging
+    fi
+  fi
+  if [ ! -d "${pack}/.git" ]; then
+    printStep "Cloning jellyfin-packaging…"
+    if [ -d "$pack" ] && [ -z "$(ls -A "$pack" 2>/dev/null)" ]; then
+      rmdir "$pack"
+    fi
+    git clone https://github.com/jellyfin/jellyfin-packaging.git "$pack"
+  fi
+
+  printStep "Updating jellyfin-packaging submodules…"
+  git -C "$pack" submodule update --init
+
+  checkoutFork "${pack}/jellyfin-server" "${JELLYFIN_FORK_SERVER}" "${JELLYFIN_FORK_BRANCH}"
+  checkoutFork "${pack}/jellyfin-web" "${JELLYFIN_FORK_WEB}" "${JELLYFIN_FORK_BRANCH}"
+}
+
+ensureCustomImage() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
+  local img="${JELLYFIN_IMAGE}"
+  local arch="amd64"
+  local version="${img##*:}"
+  version="${version%-${arch}}"
+
+  if [ "$REBUILD_IMAGE" -eq 0 ] && docker image inspect "$img" >/dev/null 2>&1; then
+    printStatus "Using existing image ${img} (pass --rebuild-image to rebuild)"
+    return 0
+  fi
+
+  if ! command -v python3 &>/dev/null; then
+    printError "python3 is required to run jellyfin-packaging/build.py"
+    return 1
+  fi
+  if ! python3 -c "import git, yaml, packaging.version" 2>/dev/null; then
+    printError "build.py needs GitPython, PyYAML, and packaging."
+    printError "Arch: sudo pacman -S python-gitpython python-yaml python-packaging"
+    return 1
+  fi
+
+  ensurePackagingCheckout
+
+  printStep "Building ${img} from forks (${JELLYFIN_FORK_BRANCH})…"
+  (
+    cd "$pack"
+    python3 ./build.py "$version" docker "$arch" --local
+  )
+  if ! docker image inspect "$img" >/dev/null 2>&1; then
+    printError "Build finished but image ${img} was not found."
+    return 1
+  fi
+  printStatus "Built ${img}"
+}
+
 fixConfigOwnership() {
   local want="${JELLYFIN_UID}:${JELLYFIN_GID}"
   local have
@@ -157,9 +246,18 @@ deployDocker() {
   docker rm -f jellyfin 2>/dev/null || true
 
   cd "$JELLYFIN_DIR"
-  $compose_cmd --env-file .env pull jellyfin
+  if [ "${JELLYFIN_IMAGE_SOURCE}" = "official" ]; then
+    # Official practice: pull jellyfin/jellyfin:latest from Docker Hub (stable).
+    export JELLYFIN_IMAGE="jellyfin/jellyfin:latest"
+    printStep "Pulling official image ${JELLYFIN_IMAGE}…"
+    $compose_cmd --env-file .env pull jellyfin
+  else
+    # Custom: do not pull. Hub has no hide-items-amd64 tag; pull would fail or overwrite.
+    # $compose_cmd --env-file .env pull jellyfin
+    ensureCustomImage || return 1
+  fi
   $compose_cmd --env-file .env up -d
-  printStatus "Jellyfin started on 127.0.0.1:8096"
+  printStatus "Jellyfin started on 127.0.0.1:8096 (${JELLYFIN_IMAGE})"
 
   if [ "${JELLYFIN_GPU:-nvidia}" != "none" ] && command -v nvidia-smi &>/dev/null; then
     sleep 3
