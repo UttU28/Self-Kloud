@@ -184,7 +184,7 @@ sudo ./chitragupt.sh all
 ```
 /mnt/chitragupt/
 ├── jellyfin/config
-├── jellyfin/media/{movies,tv,publicSpace,.incomplete}
+├── jellyfin/media/{0movies,tv,publicSpace,.incomplete}
 ├── immich/library
 ├── immich/postgres
 ├── nextcloud/data

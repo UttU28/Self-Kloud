@@ -192,8 +192,8 @@ resolveTorrentLocation() {
   local loc="$1"
 
   case "$loc" in
-    /app/media/movies|/app/media/movies/*|/media/movies|/media/movies/*)
-      echo "${mediaPath}/movies"
+    /app/media/0movies|/app/media/0movies/*|/media/0movies|/media/0movies/*|/app/media/movies|/app/media/movies/*|/media/movies|/media/movies/*)
+      echo "${mediaPath}/0movies"
       return
       ;;
     /app/media/tv|/app/media/tv/*|/media/tv|/media/tv/*)
@@ -211,8 +211,8 @@ resolveTorrentLocation() {
   esac
 
   case "$loc" in
-    *"/jellyfin/media/movies"|*"/jellyfin/media/movies/"*)
-      echo "${mediaPath}/movies"
+    *"/jellyfin/media/0movies"|*"/jellyfin/media/0movies/"*|*"/jellyfin/media/movies"|*"/jellyfin/media/movies/"*)
+      echo "${mediaPath}/0movies"
       return
       ;;
     *"/jellyfin/media/tv"|*"/jellyfin/media/tv/"*)
@@ -230,8 +230,8 @@ resolveTorrentLocation() {
   esac
 
   case "$loc" in
-    "${mediaPath}/movies"|"${mediaPath}/movies/"*)
-      echo "${mediaPath}/movies"
+    "${mediaPath}/0movies"|"${mediaPath}/0movies/"*|"${mediaPath}/movies"|"${mediaPath}/movies/"*)
+      echo "${mediaPath}/0movies"
       return
       ;;
     "${mediaPath}/tv"|"${mediaPath}/tv/"*)
@@ -252,8 +252,8 @@ resolveTorrentLocation() {
       ;;
   esac
 
-  # Unknown legacy path — default to movies (most roddents)
-  echo "${mediaPath}/movies"
+  # Unknown legacy path — default to 0movies (most roddents)
+  echo "${mediaPath}/0movies"
 }
 
 relocateAllTorrents() {
@@ -328,7 +328,7 @@ printInfo "Media path: ${mediaPath}"
 stopTransmissionDaemon
 
 mkdir -p \
-  "${mediaPath}/movies" \
+  "${mediaPath}/0movies" \
   "${mediaPath}/tv" \
   "${mediaPath}/parvatiNambyar" \
   "${mediaPath}/publicSpace" \
@@ -344,6 +344,7 @@ setTransmissionAcls() {
       if [ -d "$dir" ]; then
         setfacl -m "u:${transmissionUser}:x" "$dir"
         setfacl -m "u:${realUser}:x" "$dir"
+        setfacl -m "u:33:x" "$dir"
         printInfo "ACL traverse: ${dir}"
       fi
     done
@@ -352,6 +353,7 @@ setTransmissionAcls() {
       if [ -d "$dir" ]; then
         setfacl -m "u:${transmissionUser}:x" "$dir"
         setfacl -m "u:${realUser}:x" "$dir"
+        setfacl -m "u:33:x" "$dir"
         printInfo "ACL traverse: ${dir}"
       fi
     done
@@ -360,7 +362,9 @@ setTransmissionAcls() {
   setfacl -R -d -m "u:${transmissionUser}:rwx" "${mediaPath}"
   setfacl -R -m "u:${realUser}:rwx" "${mediaPath}"
   setfacl -R -d -m "u:${realUser}:rwx" "${mediaPath}"
-  printInfo "ACL read/write on ${mediaPath} for ${transmissionUser} and ${realUser} (uid ${mediaOwnerUid}, Apeksha Docker appuser)"
+  setfacl -R -m "u:33:rwx" "${mediaPath}"
+  setfacl -R -d -m "u:33:rwx" "${mediaPath}"
+  printInfo "ACL read/write on ${mediaPath} for ${transmissionUser}, ${realUser}, and Nextcloud www-data (uid 33)"
 }
 
 relocateScript="${jellyfinDir}/relocateCompletedTorrents.sh"
@@ -375,7 +379,7 @@ from pathlib import Path
 
 template, userOut, media, incomplete, proxyFromEnv = sys.argv[1:6]
 data = json.loads(Path(template).read_text())
-data["download-dir"] = media
+data["download-dir"] = str(Path(media) / "0movies")
 data["incomplete-dir"] = incomplete
 data["incomplete-dir-enabled"] = True
 data["download-queue-enabled"] = True

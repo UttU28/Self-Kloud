@@ -124,18 +124,51 @@ configureGpuEncoding() {
 
 # Custom image = jellyfin-packaging Docker build with server/web remotes pointed at uttu28.
 # Official image = docker compose pull of jellyfin/jellyfin:latest (stable Hub).
+packagingOwner() {
+  if [ -n "${SUDO_USER:-}" ] && [ "${SUDO_USER}" != "root" ]; then
+    echo "${SUDO_USER}"
+  else
+    echo "${JELLYFIN_PACKAGING_OWNER:-dedsec995}"
+  fi
+}
+
+chownPackagingForks() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
+  local owner
+  owner="$(packagingOwner)"
+  if [ "$(id -u)" -eq 0 ]; then
+    printStep "chown ${owner} on packaging forks (docker build leaves root-owned files)…"
+    chown -R "${owner}:${owner}" "${pack}/jellyfin-server" "${pack}/jellyfin-web"
+  fi
+}
+
 checkoutFork() {
   local dir="$1"
   local url="$2"
   local branch="$3"
-  if [ ! -d "${dir}/.git" ]; then
+  local head expected
+  # Submodules use a .git *file* (gitdir pointer), not a directory.
+  if [ ! -e "${dir}/.git" ]; then
     printError "Missing git checkout: ${dir}"
     return 1
   fi
-  git -C "$dir" remote set-url origin "$url"
-  git -C "$dir" fetch origin
-  git -C "$dir" checkout "$branch"
-  git -C "$dir" pull --ff-only origin "$branch" || true
+  git -C "$dir" remote set-url origin "$url" || return 1
+  git -C "$dir" fetch origin "$branch" || return 1
+  git -C "$dir" checkout -B "$branch" "origin/${branch}" || return 1
+  git -C "$dir" reset --hard "origin/${branch}" || return 1
+  git -C "$dir" clean -fd || return 1
+  head="$(git -C "$dir" rev-parse HEAD)"
+  expected="$(git -C "$dir" rev-parse "origin/${branch}")"
+  if [ "$head" != "$expected" ]; then
+    printError "${dir} HEAD ${head} != origin/${branch} ${expected}"
+    return 1
+  fi
+  if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+    printError "Working tree not clean after checkout: ${dir}"
+    git -C "$dir" status -sb
+    return 1
+  fi
+  printStatus "$(basename "$dir") @ ${head:0:12} (${branch})"
 }
 
 ensurePackagingCheckout() {
@@ -144,13 +177,14 @@ ensurePackagingCheckout() {
   selfhosted_root="$(cd "${JELLYFIN_DIR}/.." && pwd)"
 
   # Empty dir after `git clone` without --recurse-submodules
-  if [ ! -d "${pack}/.git" ]; then
-    if [ -f "${selfhosted_root}/.gitmodules" ] && [ -d "${selfhosted_root}/.git" ]; then
+  # jellyfin-packaging itself may be a submodule (.git file).
+  if [ ! -e "${pack}/.git" ]; then
+    if [ -f "${selfhosted_root}/.gitmodules" ] && [ -e "${selfhosted_root}/.git" ]; then
       printStep "Initializing jellyfin-packaging submodule…"
       git -C "$selfhosted_root" submodule update --init jellyfin-packaging
     fi
   fi
-  if [ ! -d "${pack}/.git" ]; then
+  if [ ! -e "${pack}/.git" ]; then
     printStep "Cloning jellyfin-packaging…"
     if [ -d "$pack" ] && [ -z "$(ls -A "$pack" 2>/dev/null)" ]; then
       rmdir "$pack"
@@ -158,11 +192,16 @@ ensurePackagingCheckout() {
     git clone https://github.com/jellyfin/jellyfin-packaging.git "$pack"
   fi
 
-  printStep "Updating jellyfin-packaging submodules…"
-  git -C "$pack" submodule update --init
+  # Only init missing server/web checkouts. `submodule update` every rebuild
+  # resets them to packaging's pinned official commits and undoes the forks.
+  if [ ! -e "${pack}/jellyfin-server/.git" ] || [ ! -e "${pack}/jellyfin-web/.git" ]; then
+    printStep "Initializing packaging submodules (missing server/web checkout)…"
+    git -C "$pack" submodule update --init
+  fi
+  chownPackagingForks
 
-  checkoutFork "${pack}/jellyfin-server" "${JELLYFIN_FORK_SERVER}" "${JELLYFIN_FORK_BRANCH}"
-  checkoutFork "${pack}/jellyfin-web" "${JELLYFIN_FORK_WEB}" "${JELLYFIN_FORK_BRANCH}"
+  checkoutFork "${pack}/jellyfin-server" "${JELLYFIN_FORK_SERVER}" "${JELLYFIN_FORK_BRANCH}" || return 1
+  checkoutFork "${pack}/jellyfin-web" "${JELLYFIN_FORK_WEB}" "${JELLYFIN_FORK_BRANCH}" || return 1
 }
 
 ensureCustomImage() {
@@ -187,17 +226,25 @@ ensureCustomImage() {
     return 1
   fi
 
-  ensurePackagingCheckout
+  ensurePackagingCheckout || return 1
 
   printStep "Building ${img} from forks (${JELLYFIN_FORK_BRANCH})…"
-  (
+  # Do not wrap this function in `||` / `if !`; that disables set -e inside and
+  # lets a failed docker build keep the previous tag as if it succeeded.
+  if ! (
     cd "$pack"
     python3 ./build.py "$version" docker "$arch" --local
-  )
-  if ! docker image inspect "$img" >/dev/null 2>&1; then
-    printError "Build finished but image ${img} was not found."
+  ); then
+    printError "build.py failed — not restarting with the previous ${img} tag."
+    chownPackagingForks
     return 1
   fi
+  if ! docker image inspect "$img" >/dev/null 2>&1; then
+    printError "Build finished but image ${img} was not found."
+    chownPackagingForks
+    return 1
+  fi
+  chownPackagingForks
   printStatus "Built ${img}"
 }
 
@@ -237,13 +284,11 @@ deployDocker() {
     return 1
   fi
 
-  mkdir -p "${MEDIA_PATH}/movies" "${MEDIA_PATH}/tv" "${MEDIA_PATH}/parvatiNambyar" "${JELLYFIN_CONFIG_PATH}"
+  mkdir -p "${MEDIA_PATH}/0movies" "${MEDIA_PATH}/tv" "${MEDIA_PATH}/parvatiNambyar" "${JELLYFIN_CONFIG_PATH}"
   ensure_chitragupt_mounted || exit 1
   fixConfigOwnership
   configureGpuEncoding
   checkNvidiaContainerToolkit || printWarning "Continuing without confirmed NVIDIA Docker runtime."
-
-  docker rm -f jellyfin 2>/dev/null || true
 
   cd "$JELLYFIN_DIR"
   if [ "${JELLYFIN_IMAGE_SOURCE}" = "official" ]; then
@@ -254,9 +299,13 @@ deployDocker() {
   else
     # Custom: do not pull. Hub has no hide-items-amd64 tag; pull would fail or overwrite.
     # $compose_cmd --env-file .env pull jellyfin
-    ensureCustomImage || return 1
+    ensureCustomImage
+    if [ "$?" -ne 0 ]; then
+      printError "Custom image rebuild failed — leaving the current container running."
+      return 1
+    fi
   fi
-  $compose_cmd --env-file .env up -d
+  $compose_cmd --env-file .env up -d --force-recreate
   printStatus "Jellyfin started on 127.0.0.1:8096 (${JELLYFIN_IMAGE})"
 
   if [ "${JELLYFIN_GPU:-nvidia}" != "none" ] && command -v nvidia-smi &>/dev/null; then

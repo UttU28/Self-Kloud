@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Wizarding World watch order for Jellyfin: 3 Fantastic Beasts, then 8 Harry Potter films.
+"""Wizarding World watch order in Movies (for a collection you create).
 
-Moves titles into media/harryPotter, adds a Harry Potter movies library, sets Forced Sort Names.
-Does not create collections.
+Sets Forced Sort Names (HP 01 … HP 11) on titles in media/0movies.
+Does not create a Harry Potter folder, library, or collection.
+
+After you make the collection in the dashboard, sort it by Name / Sort title.
 
 Dry run:
   python3 scripts/jellyfinHarryPotterWatchOrder.py
@@ -18,14 +20,13 @@ import csv
 import json
 import os
 import re
-import shutil
 import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
-from jellyfinScriptEnv import jellyfinUrl, loadDotEnv, mediaPath
+from jellyfinScriptEnv import jellyfinGet, jellyfinPost, jellyfinUrl, loadDotEnv, mediaPath
 
 STOPWORDS = {"the", "a", "an", "and"}
 VIDEO_EXT = {".mkv", ".mp4", ".m4v", ".avi", ".m2ts"}
@@ -71,29 +72,6 @@ def isMovieFolder(path: str) -> bool:
         if os.path.isfile(full) and hasPlayableVideoFile(full):
             return True
     return False
-
-
-def jellyfinRequest(url, apiKey, path, method="GET", params=None, body=None):
-    query = urllib.parse.urlencode(params or {}, doseq=True)
-    full = f"{url.rstrip('/')}{path}" + (f"?{query}" if query else "")
-    data = None if body is None else json.dumps(body).encode()
-    headers = {"X-Emby-Token": apiKey, "Accept": "application/json"}
-    if data is not None or method != "GET":
-        headers["Content-Type"] = "application/json"
-    req = urllib.request.Request(full, data=data, method=method, headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        raw = resp.read()
-        if not raw:
-            return None
-        return json.loads(raw.decode())
-
-
-def jellyfinGet(url, apiKey, path, params=None):
-    return jellyfinRequest(url, apiKey, path, "GET", params)
-
-
-def jellyfinPost(url, apiKey, path, params=None, body=None):
-    return jellyfinRequest(url, apiKey, path, "POST", params, body)
 
 
 def rowFromFields(order, title, sortTitle, year, diskTokens, aliases) -> dict:
@@ -213,17 +191,6 @@ def fetchMovies(url, apiKey, userId) -> list[dict]:
     return movies
 
 
-def removeEmptyParents(path: str, stopDir: str) -> None:
-    current = os.path.abspath(path)
-    stop = os.path.abspath(stopDir)
-    while current.startswith(stop) and current != stop:
-        try:
-            os.rmdir(current)
-        except OSError:
-            return
-        current = os.path.dirname(current)
-
-
 def main() -> int:
     dotEnv = loadDotEnv()
     hostMedia = mediaPath(dotEnv)
@@ -232,17 +199,7 @@ def main() -> int:
     parser.add_argument("--url", default=jellyfinUrl(dotEnv))
     parser.add_argument("--apiKey", default=dotEnv.get("JELLYFIN_API_KEY"))
     parser.add_argument("--userId", default=dotEnv.get("JELLYFIN_USER_ID"))
-    parser.add_argument("--moviesDir", default=f"{hostMedia}/movies")
-    parser.add_argument(
-        "--harryPotterDir",
-        default=f"{hostMedia}/harryPotter",
-    )
-    parser.add_argument(
-        "--jellyfinHarryPotterPath",
-        default="/media/harryPotter",
-        help="Path inside the Jellyfin container",
-    )
-    parser.add_argument("--libraryName", default="Harry Potter")
+    parser.add_argument("--moviesDir", default=f"{hostMedia}/0movies")
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
@@ -251,12 +208,10 @@ def main() -> int:
         return 1
 
     wanted = loadPlaylist(args.csv)
-    os.makedirs(args.harryPotterDir, exist_ok=True)
-    diskEntries = listDiskEntries([args.moviesDir, args.harryPotterDir])
+    diskEntries = listDiskEntries([args.moviesDir])
 
-    print("DISK MATCHES (move plan):")
-    moves = []
-    already = []
+    print("DISK MATCHES (in 0movies/):")
+    onDisk = []
     diskMissing = []
     for row in wanted:
         hit = pickDisk(row, diskEntries)
@@ -264,13 +219,8 @@ def main() -> int:
             diskMissing.append(row)
             print(f"  {row['order']:02d}. {row['title']} ({row['year']})  ->  NOT ON DISK")
             continue
-        dest = os.path.join(args.harryPotterDir, hit["name"])
-        if os.path.abspath(os.path.dirname(hit["path"])) == os.path.abspath(args.harryPotterDir):
-            already.append(hit)
-            print(f"  {row['order']:02d}. {row['title']}  ->  already in harryPotter/{hit['name']}")
-        else:
-            moves.append((hit["path"], dest, row))
-            print(f"  {row['order']:02d}. {row['title']}  ->  {hit['name']}")
+        onDisk.append(hit)
+        print(f"  {row['order']:02d}. {row['title']}  ->  {hit['name']}")
 
     users = jellyfinGet(args.url, args.apiKey, "/Users")
     userId = args.userId or users[0]["Id"]
@@ -287,63 +237,34 @@ def main() -> int:
         else:
             print(f"  {row['order']:02d}. {row['title']}  ->  not identified yet")
 
-    folders = jellyfinGet(args.url, args.apiKey, "/Library/VirtualFolders") or []
-    libraryExists = any(
-        folder.get("Name") == args.libraryName
-        or args.jellyfinHarryPotterPath in (folder.get("Locations") or [])
-        for folder in folders
-    )
-
     print()
     print(f"CSV titles: {len(wanted)}")
-    print(f"On disk (will use): {len(moves) + len(already)}")
-    print(f"Would move: {len(moves)}")
-    print(f"Already in harryPotter/: {len(already)}")
+    print(f"On disk in 0movies/: {len(onDisk)}")
     print(f"Not on disk: {len(diskMissing)} ({', '.join(item['title'] for item in diskMissing) or 'none'})")
     print(f"Jellyfin exact matches now: {len(matched)}")
-    print(f"Harry Potter library exists: {libraryExists}")
 
     if not args.apply:
         print()
-        print("Dry run only. Re-run with --apply to move files, add the library, and set sort names.")
+        print("Dry run only. Re-run with --apply to set sort names in Movies.")
         return 0
 
-    for src, dest, _row in moves:
-        print(f"Moving {os.path.basename(src)}")
-        shutil.move(src, dest)
-        removeEmptyParents(os.path.dirname(src), args.moviesDir)
-
-    if not libraryExists:
-        print(f"Adding Jellyfin library '{args.libraryName}' -> {args.jellyfinHarryPotterPath}")
-        jellyfinPost(
-            args.url,
-            args.apiKey,
-            "/Library/VirtualFolders",
-            params={
-                "name": args.libraryName,
-                "collectionType": "movies",
-                "paths": args.jellyfinHarryPotterPath,
-                "refreshLibrary": "true",
-            },
-        )
-    elif moves:
-        print("Refreshing library after moves.")
+    expected = len(onDisk)
+    if expected and len(matched) < expected:
+        print("Refreshing Movies library...")
         jellyfinPost(args.url, args.apiKey, "/Library/Refresh")
-
-    expected = len(moves) + len(already)
-    print("Waiting for Jellyfin to identify Harry Potter movies...")
-    deadline = time.time() + 180
-    while time.time() < deadline:
-        movies = fetchMovies(args.url, args.apiKey, userId)
-        matched = []
-        for row in wanted:
-            hit = pickJellyfin(row, movies)
-            if hit:
-                matched.append({**row, "jellyfin": hit})
-        print(f"  identified {len(matched)}/{expected}")
-        if len(matched) >= expected:
-            break
-        time.sleep(5)
+        print("Waiting for Jellyfin to identify titles...")
+        deadline = time.time() + 180
+        while time.time() < deadline:
+            movies = fetchMovies(args.url, args.apiKey, userId)
+            matched = []
+            for row in wanted:
+                hit = pickJellyfin(row, movies)
+                if hit:
+                    matched.append({**row, "jellyfin": hit})
+            print(f"  identified {len(matched)}/{expected}")
+            if len(matched) >= expected:
+                break
+            time.sleep(5)
 
     if not matched:
         print("Scan finished but no titles matched.", file=sys.stderr)
@@ -377,7 +298,7 @@ def main() -> int:
     if stillMissing:
         print("Still not identified:", ", ".join(stillMissing))
 
-    print("\nDone. Open the Harry Potter library and sort by Name / Sort title.")
+    print("\nDone. Make (or open) your Harry Potter collection and sort by Name / Sort title.")
     return 0
 
 

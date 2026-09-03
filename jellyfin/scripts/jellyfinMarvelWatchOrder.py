@@ -28,7 +28,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from jellyfinScriptEnv import jellyfinUrl, loadDotEnv, mediaPath
+from jellyfinScriptEnv import jellyfinGet, jellyfinPost, jellyfinUrl, loadDotEnv, mediaPath
 
 STOPWORDS = {"the", "a", "an", "and"}
 VIDEO_EXT = {".mkv", ".mp4", ".m4v", ".avi", ".m2ts"}
@@ -111,29 +111,6 @@ def isMovieFolder(path: str) -> bool:
         if os.path.isfile(full) and hasPlayableVideoFile(full):
             return True
     return False
-
-
-def jellyfinRequest(url, apiKey, path, method="GET", params=None, body=None):
-    query = urllib.parse.urlencode(params or {}, doseq=True)
-    full = f"{url.rstrip('/')}{path}" + (f"?{query}" if query else "")
-    data = None if body is None else json.dumps(body).encode()
-    headers = {"X-Emby-Token": apiKey, "Accept": "application/json"}
-    if data is not None or method != "GET":
-        headers["Content-Type"] = "application/json"
-    req = urllib.request.Request(full, data=data, method=method, headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        raw = resp.read()
-        if not raw:
-            return None
-        return json.loads(raw.decode())
-
-
-def jellyfinGet(url, apiKey, path, params=None):
-    return jellyfinRequest(url, apiKey, path, "GET", params)
-
-
-def jellyfinPost(url, apiKey, path, params=None, body=None):
-    return jellyfinRequest(url, apiKey, path, "POST", params, body)
 
 
 def rowFromFields(order, title, sortTitle, year, diskTokens, aliases) -> dict:
@@ -289,7 +266,7 @@ def main() -> int:
     parser.add_argument("--url", default=jellyfinUrl(dotEnv))
     parser.add_argument("--apiKey", default=dotEnv.get("JELLYFIN_API_KEY"))
     parser.add_argument("--userId", default=dotEnv.get("JELLYFIN_USER_ID"))
-    parser.add_argument("--moviesDir", default=f"{hostMedia}/movies")
+    parser.add_argument("--moviesDir", default=f"{hostMedia}/0movies")
     parser.add_argument(
         "--marvelDir",
         default=f"{hostMedia}/marvel",

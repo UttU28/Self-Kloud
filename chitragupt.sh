@@ -160,7 +160,7 @@ _chitragupt_main() {
     info "Creating folder layout…"
     mkdir -p \
       "${CHITRAGUPT_ROOT}/jellyfin/config" \
-      "${CHITRAGUPT_ROOT}/jellyfin/media/movies" \
+      "${CHITRAGUPT_ROOT}/jellyfin/media/0movies" \
       "${CHITRAGUPT_ROOT}/jellyfin/media/tv" \
       "${CHITRAGUPT_ROOT}/jellyfin/media/publicSpace" \
       "${CHITRAGUPT_ROOT}/jellyfin/media/.incomplete" \
@@ -363,7 +363,7 @@ _chitragupt_main() {
 
     info "Nextcloud folders:"
     echo "  Files/          → your Google-Drive-style storage"
-    echo "  Jellyfin Media/ → movies, tv, publicSpace"
+    echo "  Jellyfin Media/ → 0movies, tv, publicSpace"
   }
 
   usage() {

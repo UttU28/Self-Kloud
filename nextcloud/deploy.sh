@@ -271,6 +271,15 @@ configureJellyfinExternalStorage() {
     --user "$user" \
     -c "datadir=${media_path}" >/dev/null 2>&1 || true
 
+  # Nextcloud PHP is www-data (uid 33). Media is owned by root + ACLs for
+  # Transmission / desktop user only — without this, Files UI cannot delete/move.
+  if command -v setfacl >/dev/null && [ -d "$media_path" ]; then
+    printStep "ACL write for Nextcloud www-data on ${media_path}…"
+    setfacl -m "u:${NEXTCLOUD_UID}:x" /mnt "${CHITRAGUPT_ROOT:-/mnt/chitragupt}" "${CHITRAGUPT_ROOT:-/mnt/chitragupt}/jellyfin" 2>/dev/null || true
+    setfacl -R -m "u:${NEXTCLOUD_UID}:rwx" "$media_path"
+    setfacl -R -d -m "u:${NEXTCLOUD_UID}:rwx" "$media_path"
+  fi
+
   printStep "Scanning Jellyfin Media (may take a minute)…"
   docker exec -u www-data nextcloud php occ files:scan "$user" \
     --path="/${user}/files/Jellyfin Media" 2>/dev/null || true

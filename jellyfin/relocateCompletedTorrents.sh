@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Move finished Transmission downloads into their library folder (movies / tv /
+# Move finished Transmission downloads into their library folder (0movies / tv /
 # parvatiNambyar). Skips .incomplete/. Uses Apeksha backend logic + Transmission RPC.
 #
 #   ./relocateCompletedTorrents.sh
