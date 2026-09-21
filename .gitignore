@@ -6,6 +6,7 @@
 # --- Jellyfin runtime ---
 jellyfin/config/
 jellyfin/media/
+jellyfin/.built-from
 
 # --- Immich runtime ---
 immich/library/

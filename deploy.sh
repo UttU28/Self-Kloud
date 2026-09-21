@@ -236,7 +236,10 @@ deploy_jellyfin() {
   fi
 
   step "Running ${JELLYFIN_DEPLOY}"
-  bash "$JELLYFIN_DEPLOY" "${args[@]}"
+  if ! bash "$JELLYFIN_DEPLOY" "${args[@]}"; then
+    err "Jellyfin deploy failed"
+    return 1
+  fi
   info "Jellyfin deploy finished."
 }
 

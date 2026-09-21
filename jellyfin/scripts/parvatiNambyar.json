@@ -1,0 +1,592 @@
+{
+  "library": "parvatiNambyar",
+  "path": "/mnt/chitragupt/jellyfin/media/parvatiNambyar",
+  "count": 25,
+  "videos": [
+    {
+      "title": "Bhagam Bhag 2006 (HD) - Full Movie - Superhit Comedy Movie - Akshay Kumar - Govinda -  Paresh Rawal",
+      "youtubeId": "zloKjQXmwhE",
+      "youtubeUrl": "https://www.youtube.com/watch?v=zloKjQXmwhE",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 9509.1,
+      "sizeBytes": 2001450032,
+      "folder": "Bhagam Bhag 2006 (HD) - Full Movie - Superhit Comedy Movie - Akshay Kumar - Govi [zloKjQXmwhE]",
+      "file": "Bhagam Bhag 2006 (HD) - Full Movie - Superhit Comedy Movie - Akshay Kumar - Govinda -  Paresh Rawal [zloKjQXmwhE].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Bhool Bhulaiyaa (Full Movie): Akshay Kumar | Vidya Balan | Paresh Rawal | Rajpal Yadav| Comedy Movie",
+      "youtubeId": "Kkcwa_hSKLA",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Kkcwa_hSKLA",
+      "quality": "2160p",
+      "width": 3840,
+      "height": 2160,
+      "codec": "av1",
+      "durationSec": 8899.6,
+      "sizeBytes": 10440538953,
+      "folder": "Bhool Bhulaiyaa (Full Movie)_ Akshay Kumar _ Vidya Balan _ Paresh Rawal _ Rajpal [Kkcwa_hSKLA]",
+      "file": "Bhool Bhulaiyaa (Full Movie)： Akshay Kumar ｜ Vidya Balan ｜ Paresh Rawal ｜ Rajpal Yadav｜ Comedy Movie [Kkcwa_hSKLA].mkv",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "2160p",
+      "bestAvailableHeight": 2160,
+      "bestToolQuality": "2160p",
+      "bestToolHeight": 2160,
+      "upgrade": {
+        "status": "done",
+        "deleted": [
+          "Bhool Bhulaiyaa (Full Movie)： Akshay Kumar ｜ Vidya Balan ｜ Paresh Rawal ｜ Rajpal Yadav｜ Comedy Movie [Kkcwa_hSKLA].mp4"
+        ]
+      }
+    },
+    {
+      "title": "De Dana Dan - Full Film HD | Akshay K | Katrina K | Suniel S | Paresh R | Superhit Bollywood Comedy",
+      "youtubeId": "lRm6tYF_MoM",
+      "youtubeUrl": "https://www.youtube.com/watch?v=lRm6tYF_MoM",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 10047.2,
+      "sizeBytes": 4011075045,
+      "folder": "De Dana Dan - Full Film HD _ Akshay K _ Katrina K _ Suniel S _ Paresh R _ Superh [lRm6tYF_MoM]",
+      "file": "De Dana Dan - Full Film HD ｜ Akshay K ｜ Katrina K ｜ Suniel S ｜ Paresh R ｜ Superhit Bollywood Comedy [lRm6tYF_MoM].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Deewane Huye Paagal | Superhit Bollywood Comedy Movie | Akshay Kumar | Suniel Shetty | Paresh Rawal",
+      "youtubeId": "zDYTE2CxvoE",
+      "youtubeUrl": "https://www.youtube.com/watch?v=zDYTE2CxvoE",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 9055.1,
+      "sizeBytes": 1105756649,
+      "folder": "Deewane Huye Paagal _ Superhit Bollywood Comedy Movie _ Akshay Kumar _ Suniel Sh [zDYTE2CxvoE]",
+      "file": "Deewane Huye Paagal ｜ Superhit Bollywood Comedy Movie ｜ Akshay Kumar ｜ Suniel Shetty ｜ Paresh Rawal [zDYTE2CxvoE].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Dhol - Superhit Bollywood Comedy Movie - Rajpal Yadav | Kunal Khemu | Tusshar Kapoor | Sharman Joshi",
+      "youtubeId": "CRzvimM6ZJk",
+      "youtubeUrl": "https://www.youtube.com/watch?v=CRzvimM6ZJk",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8729.5,
+      "sizeBytes": 1122640010,
+      "folder": "Dhol - Superhit Bollywood Comedy Movie - Rajpal Yadav _ Kunal Khemu _ Tusshar Ka [CRzvimM6ZJk]",
+      "file": "Dhol - Superhit Bollywood Comedy Movie - Rajpal Yadav ｜ Kunal Khemu ｜ Tusshar Kapoor ｜ Sharman Joshi [CRzvimM6ZJk].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Garam Masala (HD) Full Movie | Hindi Comedy Movies | Akshay Kumar Movies | Latest Bollywood Movies",
+      "youtubeId": "gxBERAhEU7w",
+      "youtubeUrl": "https://www.youtube.com/watch?v=gxBERAhEU7w",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8248.1,
+      "sizeBytes": 1880291115,
+      "folder": "Garam Masala (HD) Full Movie _ Hindi Comedy Movies _ Akshay Kumar Movies _ Lates [gxBERAhEU7w]",
+      "file": "Garam Masala (HD) Full Movie ｜ Hindi Comedy Movies ｜ Akshay Kumar Movies ｜ Latest Bollywood Movies [gxBERAhEU7w].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "GO GOA GONE Full Movie (HD) | Saif Ali Khan, Vir Das, Kunal Khemu | Best Zombie Movie | #comedy",
+      "youtubeId": "RBQamFajUSU",
+      "youtubeUrl": "https://www.youtube.com/watch?v=RBQamFajUSU",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 6111.7,
+      "sizeBytes": 865502607,
+      "folder": "GO GOA GONE Full Movie (HD) _ Saif Ali Khan, Vir Das, Kunal Khemu _ Best Zombie [RBQamFajUSU]",
+      "file": "GO GOA GONE Full Movie (HD) ｜ Saif Ali Khan, Vir Das, Kunal Khemu ｜ Best Zombie Movie ｜ #comedy [RBQamFajUSU].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Golmaal 3 Full Movie - Ajay Devgan - Kareena Kapoor - Arshad Warsi - Shreyas - Kunal - Tushar",
+      "youtubeId": "XaXKh-s9zws",
+      "youtubeUrl": "https://www.youtube.com/watch?v=XaXKh-s9zws",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 7653.1,
+      "sizeBytes": 888667287,
+      "folder": "Golmaal 3 Full Movie - Ajay Devgan - Kareena Kapoor - Arshad Warsi - Shreyas - K [XaXKh-s9zws]",
+      "file": "Golmaal 3 Full Movie - Ajay Devgan - Kareena Kapoor - Arshad Warsi - Shreyas - Kunal - Tushar [XaXKh-s9zws].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Golmaal Again Full Movie - Ajay Devgn, Tabu, Arshad, Johny, Kunal, Tusshar | Best Comedy",
+      "youtubeId": "0v4Hbf0nl6E",
+      "youtubeUrl": "https://www.youtube.com/watch?v=0v4Hbf0nl6E",
+      "quality": "2160p",
+      "width": 3840,
+      "height": 2160,
+      "codec": "av1",
+      "durationSec": 8708.9,
+      "sizeBytes": 6219455005,
+      "folder": "Golmaal Again Full Movie - Ajay Devgn, Tabu, Arshad, Johny, Kunal, Tusshar _ Bes [0v4Hbf0nl6E]",
+      "file": "Golmaal Again Full Movie - Ajay Devgn, Tabu, Arshad, Johny, Kunal, Tusshar ｜ Best Comedy [0v4Hbf0nl6E].mkv",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "2160p",
+      "bestAvailableHeight": 2160,
+      "bestToolQuality": "2160p",
+      "bestToolHeight": 2160,
+      "upgrade": {
+        "status": "done",
+        "deleted": [
+          "Golmaal Again Full Movie - Ajay Devgn, Tabu, Arshad, Johny, Kunal, Tusshar ｜ Best Comedy [0v4Hbf0nl6E].mp4"
+        ]
+      }
+    },
+    {
+      "title": "GOLMAAL Full Comedy Movie | Amol Palekar, Bindiya Goswami, Utpal Dutt | Full Hindi Movie HD",
+      "youtubeId": "jxPYbYeA-VQ",
+      "youtubeUrl": "https://www.youtube.com/watch?v=jxPYbYeA-VQ",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8269.5,
+      "sizeBytes": 840423635,
+      "folder": "GOLMAAL Full Comedy Movie _ Amol Palekar, Bindiya Goswami, Utpal Dutt _ Full Hin [jxPYbYeA-VQ]",
+      "file": "GOLMAAL Full Comedy Movie ｜ Amol Palekar, Bindiya Goswami, Utpal Dutt ｜ Full Hindi Movie HD [jxPYbYeA-VQ].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Golmaal Returns (HD) | Ajay Devgan | Kareena Kapoor | Arshad Warsi | Bollywood Latest Movie",
+      "youtubeId": "TMQiRFopX_U",
+      "youtubeUrl": "https://www.youtube.com/watch?v=TMQiRFopX_U",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 7843.6,
+      "sizeBytes": 869000719,
+      "folder": "Golmaal Returns (HD) _ Ajay Devgan _ Kareena Kapoor _ Arshad Warsi _ Bollywood L [TMQiRFopX_U]",
+      "file": "Golmaal Returns (HD) ｜ Ajay Devgan ｜ Kareena Kapoor ｜ Arshad Warsi ｜ Bollywood Latest Movie [TMQiRFopX_U].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Golmaal: Fun Unlimited (2006) {HD} - Full Movie  - Ajay Devgn - Arshad Warsi - SuperHit Comedy Movie",
+      "youtubeId": "ZmE6TN9bYQg",
+      "youtubeUrl": "https://www.youtube.com/watch?v=ZmE6TN9bYQg",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8540.5,
+      "sizeBytes": 846278939,
+      "folder": "Golmaal_ Fun Unlimited (2006) {HD} - Full Movie - Ajay Devgn - Arshad Warsi - Su [ZmE6TN9bYQg]",
+      "file": "Golmaal： Fun Unlimited (2006) {HD} - Full Movie  - Ajay Devgn - Arshad Warsi - SuperHit Comedy Movie [ZmE6TN9bYQg].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Hera Pheri (HD) - Akshay Kumar's Blockbuster Comedy Movie | Sunil Shetty, Paresh Rawal | हेरा फेरी",
+      "youtubeId": "9etEvaXxWE0",
+      "youtubeUrl": "https://www.youtube.com/watch?v=9etEvaXxWE0",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8018.1,
+      "sizeBytes": 1671637539,
+      "folder": "Hera Pheri (HD) - Akshay Kumar's Blockbuster Comedy Movie _ Sunil Shetty, Paresh [9etEvaXxWE0]",
+      "file": "Hera Pheri (HD) - Akshay Kumar's Blockbuster Comedy Movie ｜ Sunil Shetty, Paresh Rawal ｜ हेरा फेरी [9etEvaXxWE0].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "HEY BABBY FULL HD HINDI MOVIE - AKSHAY KUMAR - VIDYA BALAN - RITEISH DESHMUKH - FARDEEN KHAN",
+      "youtubeId": "Dn26dn7e8Q0",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Dn26dn7e8Q0",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8284.1,
+      "sizeBytes": 973542523,
+      "folder": "HEY BABBY FULL HD HINDI MOVIE - AKSHAY KUMAR - VIDYA BALAN - RITEISH DESHMUKH - [Dn26dn7e8Q0]",
+      "file": "HEY BABBY FULL HD HINDI MOVIE - AKSHAY KUMAR - VIDYA BALAN - RITEISH DESHMUKH - FARDEEN KHAN [Dn26dn7e8Q0].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Hulchul | Hindi Movies 2016 Full Movie | Akshaye Khanna | Kareena Kapoor | Bollywood Comedy Movies",
+      "youtubeId": "5QDKX5ExXqM",
+      "youtubeUrl": "https://www.youtube.com/watch?v=5QDKX5ExXqM",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8905.9,
+      "sizeBytes": 2697155700,
+      "folder": "Hulchul _ Hindi Movies 2016 Full Movie _ Akshaye Khanna _ Kareena Kapoor _ Bolly [5QDKX5ExXqM]",
+      "file": "Hulchul ｜ Hindi Movies 2016 Full Movie ｜ Akshaye Khanna ｜ Kareena Kapoor ｜ Bollywood Comedy Movies [5QDKX5ExXqM].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Hungama | Hindi Full Movie | Paresh Rawal | Akshaye Khanna | Rimi | Rajpal | Hindi Comedy Movies",
+      "youtubeId": "55sUfITkuVY",
+      "youtubeUrl": "https://www.youtube.com/watch?v=55sUfITkuVY",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8767.6,
+      "sizeBytes": 2167058544,
+      "folder": "Hungama _ Hindi Full Movie _ Paresh Rawal _ Akshaye Khanna _ Rimi _ Rajpal _ Hin [55sUfITkuVY]",
+      "file": "Hungama ｜ Hindi Full Movie ｜ Paresh Rawal ｜ Akshaye Khanna ｜ Rimi ｜ Rajpal ｜ Hindi Comedy Movies [55sUfITkuVY].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Kamaal Dhamaal Malamaal Full Movie | अब आएगा असली मज़ा | Nana Patekar | Paresh Rawal | Full Comedy",
+      "youtubeId": "9T25TFMCBH4",
+      "youtubeUrl": "https://www.youtube.com/watch?v=9T25TFMCBH4",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8425.1,
+      "sizeBytes": 2526967640,
+      "folder": "Kamaal Dhamaal Malamaal Full Movie _ अब आएगा असली मज़ा _ Nana Patekar _ Paresh R [9T25TFMCBH4]",
+      "file": "Kamaal Dhamaal Malamaal Full Movie ｜ अब आएगा असली मज़ा ｜ Nana Patekar ｜ Paresh Rawal ｜ Full Comedy [9T25TFMCBH4].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Khatta Meetha Full Movie | Akshay Kumar | Rajpal Yadav | Johnny L | बॉलीवुड की सुपरहिट कॉमेडी मूवी",
+      "youtubeId": "sd0vPLTCq-s",
+      "youtubeUrl": "https://www.youtube.com/watch?v=sd0vPLTCq-s",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 9091.6,
+      "sizeBytes": 975358603,
+      "folder": "Khatta Meetha Full Movie _ Akshay Kumar _ Rajpal Yadav _ Johnny L _ बॉलीवुड की स [sd0vPLTCq-s]",
+      "file": "Khatta Meetha Full Movie ｜ Akshay Kumar ｜ Rajpal Yadav ｜ Johnny L ｜ बॉलीवुड की सुपरहिट कॉमेडी मूवी [sd0vPLTCq-s].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Khichdi The Movie full HD 1080 (original print) | 2020 best comedy movie | thori masti",
+      "youtubeId": "omo3dv0cwmA",
+      "youtubeUrl": "https://www.youtube.com/watch?v=omo3dv0cwmA",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "av1",
+      "durationSec": 6707.6,
+      "sizeBytes": 1078529623,
+      "folder": "Khichdi The Movie full HD 1080 (original print) _ 2020 best comedy movie _ thori [omo3dv0cwmA]",
+      "file": "Khichdi The Movie full HD 1080 (original print) ｜ 2020 best comedy movie ｜ thori masti [omo3dv0cwmA].mkv",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080,
+      "upgrade": {
+        "status": "done",
+        "deleted": [
+          "Khichdi The Movie full HD 1080 (original print) ｜ 2020 best comedy movie ｜ thori masti [omo3dv0cwmA].mp4"
+        ],
+        "reason": "already_missing"
+      }
+    },
+    {
+      "title": "Koi… Mil Gaya (2003) - Superhit Hindi Movie With English Subtitles | Hrithik Roshan & Preity Zinta",
+      "youtubeId": "OHRAIiteN7o",
+      "youtubeUrl": "https://www.youtube.com/watch?v=OHRAIiteN7o",
+      "quality": "1440p",
+      "width": 3840,
+      "height": 1620,
+      "codec": "av1",
+      "durationSec": 9972.7,
+      "sizeBytes": 7977549818,
+      "folder": "Koi… Mil Gaya (2003) - Superhit Hindi Movie With English Subtitles _ Hrithik Ros [OHRAIiteN7o]",
+      "file": "Koi… Mil Gaya (2003) - Superhit Hindi Movie With English Subtitles ｜ Hrithik Roshan & Preity Zinta [OHRAIiteN7o].mkv",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1440p",
+      "bestAvailableHeight": 1620,
+      "bestToolQuality": "1440p",
+      "bestToolHeight": 1620,
+      "upgrade": {
+        "status": "done",
+        "deleted": [
+          "Koi… Mil Gaya (2003) - Superhit Hindi Movie With English Subtitles ｜ Hrithik Roshan & Preity Zinta [OHRAIiteN7o].f137.mp4.part.aria2",
+          "Koi… Mil Gaya (2003) - Superhit Hindi Movie With English Subtitles ｜ Hrithik Roshan & Preity Zinta [OHRAIiteN7o].mp4"
+        ],
+        "reason": "already_missing"
+      }
+    },
+    {
+      "title": "Krazzy 4: जब 4 पागल हुए 'आज़ाद - Superhit Comedy Movie With Subtitles - Arshad Warsi, Irrfan, Juhi C",
+      "youtubeId": "T8rDA39ky_M",
+      "youtubeUrl": "https://www.youtube.com/watch?v=T8rDA39ky_M",
+      "quality": "2160p",
+      "width": 3840,
+      "height": 2160,
+      "codec": "av1",
+      "durationSec": 7024.7,
+      "sizeBytes": 7217969079,
+      "folder": "Krazzy 4_ जब 4 पागल हुए 'आज़ाद - Superhit Comedy Movie With Subtitles - Arshad Wa [T8rDA39ky_M]",
+      "file": "Krazzy 4： जब 4 पागल हुए 'आज़ाद - Superhit Comedy Movie With Subtitles - Arshad Warsi, Irrfan, Juhi C [T8rDA39ky_M].mkv",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "2160p",
+      "bestAvailableHeight": 2160,
+      "bestToolQuality": "2160p",
+      "bestToolHeight": 2160,
+      "upgrade": {
+        "status": "done",
+        "deleted": [
+          "Krazzy 4： जब 4 पागल हुए 'आज़ाद - Superhit Comedy Movie With Subtitles - Arshad Warsi, Irrfan, Juhi C [T8rDA39ky_M].f137.mp4.part.aria2",
+          "Krazzy 4： जब 4 पागल हुए 'आज़ाद - Superhit Comedy Movie With Subtitles - Arshad Warsi, Irrfan, Juhi C [T8rDA39ky_M].mp4"
+        ],
+        "reason": "already_missing"
+      }
+    },
+    {
+      "title": "Kyon Ki (2005) Movie HD | Salman Khan, Kareena Kapoor, Jackie Shroff | Superhit Emotional Classic",
+      "youtubeId": "XMd8b5Ed7R0",
+      "youtubeUrl": "https://www.youtube.com/watch?v=XMd8b5Ed7R0",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8859.9,
+      "sizeBytes": 2045202502,
+      "folder": "Kyon Ki (2005) Movie HD _ Salman Khan, Kareena Kapoor, Jackie Shroff _ Superhit [XMd8b5Ed7R0]",
+      "file": "Kyon Ki (2005) Movie HD ｜ Salman Khan, Kareena Kapoor, Jackie Shroff ｜ Superhit Emotional Classic [XMd8b5Ed7R0].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Malamaal Weekly (2006) Full Movie HD | Paresh Rawal | Om Puri | Riteish Deshmukh | Rajpal Yadav",
+      "youtubeId": "LR-qPXfaGA8",
+      "youtubeUrl": "https://www.youtube.com/watch?v=LR-qPXfaGA8",
+      "quality": "720p",
+      "width": 1920,
+      "height": 1052,
+      "codec": "h264",
+      "durationSec": 7835.8,
+      "sizeBytes": 1922612401,
+      "folder": "Malamaal Weekly (2006) Full Movie HD _ Paresh Rawal _ Om Puri _ Riteish Deshmukh [LR-qPXfaGA8]",
+      "file": "Malamaal Weekly (2006) Full Movie HD ｜ Paresh Rawal ｜ Om Puri ｜ Riteish Deshmukh ｜ Rajpal Yadav [LR-qPXfaGA8].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "720p",
+      "bestAvailableHeight": 1052,
+      "bestToolQuality": "720p",
+      "bestToolHeight": 1052
+    },
+    {
+      "title": "Phir Hera Pheri | Full Hindi Comedy Movie | Paresh Rawal -Akshay Kumar - Sunil Shetty - Rajpal Yadav",
+      "youtubeId": "TmxYlA26Jr4",
+      "youtubeUrl": "https://www.youtube.com/watch?v=TmxYlA26Jr4",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 9035.1,
+      "sizeBytes": 1909753268,
+      "folder": "Phir Hera Pheri _ Full Hindi Comedy Movie _ Paresh Rawal -Akshay Kumar - Sunil S [TmxYlA26Jr4]",
+      "file": "Phir Hera Pheri ｜ Full Hindi Comedy Movie ｜ Paresh Rawal -Akshay Kumar - Sunil Shetty - Rajpal Yadav [TmxYlA26Jr4].mp4",
+      "incomplete": true,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    },
+    {
+      "title": "Superhit Blockbuster Full Hindi Comedy Movie | Shahid Kapoor, Paresh Rawal, Rajpal Yadav Comedy",
+      "youtubeId": "6xOMF2Gdyco",
+      "youtubeUrl": "https://www.youtube.com/watch?v=6xOMF2Gdyco",
+      "quality": "1080p",
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "durationSec": 8235.2,
+      "sizeBytes": 1643555641,
+      "folder": "Superhit Blockbuster Full Hindi Comedy Movie _ Shahid Kapoor, Paresh Rawal, Rajp [6xOMF2Gdyco]",
+      "file": "Superhit Blockbuster Full Hindi Comedy Movie ｜ Shahid Kapoor, Paresh Rawal, Rajpal Yadav Comedy [6xOMF2Gdyco].mp4",
+      "incomplete": false,
+      "youtubeCompare": {
+        "status": "have_best",
+        "toolStatus": "have_best"
+      },
+      "bestAvailableQuality": "1080p",
+      "bestAvailableHeight": 1080,
+      "bestToolQuality": "1080p",
+      "bestToolHeight": 1080
+    }
+  ]
+}

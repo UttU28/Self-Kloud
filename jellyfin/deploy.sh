@@ -3,9 +3,12 @@
 #
 #   ./deploy.sh
 #   ./deploy.sh --docker-only
-#   ./deploy.sh --rebuild-image       # rebuild uttu28 forks into jellyfin/jellyfin:hide-items-amd64
+#   ./deploy.sh --rebuild-image       # force rebuild even if forks are unchanged
 #   sudo ./deploy.sh
 #   sudo ./deploy.sh --transmission   # also configure transmission-daemon for media/
+#
+# Custom image (default): fetch uttu28 forks on JELLYFIN_FORK_BRANCH and rebuild
+# only when origin SHAs differ from the last successful build (.built-from).
 
 set -euo pipefail
 
@@ -37,7 +40,8 @@ for arg in "$@"; do
     -h|--help)
       echo "Usage: $0 [--docker-only] [--transmission] [--rebuild-image]"
       echo "  --transmission    Configure system transmission-daemon (requires sudo)"
-      echo "  --rebuild-image   Rebuild the custom Jellyfin image from jellyfin-packaging forks"
+      echo "  --rebuild-image   Force rebuild the custom image even if forks are unchanged"
+      echo "  (default custom)  Fetch forks and rebuild only when origin commits changed"
       exit 0
       ;;
   esac
@@ -142,6 +146,43 @@ chownPackagingForks() {
   fi
 }
 
+imageStampPath() {
+  echo "${JELLYFIN_DIR}/.built-from"
+}
+
+stampValue() {
+  local key="$1"
+  local file="$2"
+  awk -F= -v k="$key" '$1==k {print $2; exit}' "$file"
+}
+
+writeImageStamp() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
+  local stamp
+  stamp="$(imageStampPath)"
+  cat >"$stamp" <<EOF
+IMAGE=${JELLYFIN_IMAGE}
+BRANCH=${JELLYFIN_FORK_BRANCH}
+SERVER_REMOTE=${JELLYFIN_FORK_SERVER}
+WEB_REMOTE=${JELLYFIN_FORK_WEB}
+SERVER_SHA=$(git -C "${pack}/jellyfin-server" rev-parse HEAD)
+WEB_SHA=$(git -C "${pack}/jellyfin-web" rev-parse HEAD)
+EOF
+}
+
+fetchForkTip() {
+  local dir="$1"
+  local url="$2"
+  local branch="$3"
+  if [ ! -e "${dir}/.git" ]; then
+    printError "Missing git checkout: ${dir}"
+    return 1
+  fi
+  git -C "$dir" remote set-url origin "$url" || return 1
+  git -C "$dir" fetch origin "$branch" || return 1
+  git -C "$dir" rev-parse "origin/${branch}"
+}
+
 checkoutFork() {
   local dir="$1"
   local url="$2"
@@ -154,7 +195,11 @@ checkoutFork() {
   fi
   git -C "$dir" remote set-url origin "$url" || return 1
   git -C "$dir" fetch origin "$branch" || return 1
-  git -C "$dir" checkout -B "$branch" "origin/${branch}" || return 1
+  # Packaging checkouts are disposable. Docker/chown can leave dirty files that
+  # block `checkout -B` if we reset only after switching.
+  git -C "$dir" reset --hard HEAD >/dev/null 2>&1 || true
+  git -C "$dir" clean -fd >/dev/null 2>&1 || true
+  git -C "$dir" checkout -f -B "$branch" "origin/${branch}" || return 1
   git -C "$dir" reset --hard "origin/${branch}" || return 1
   git -C "$dir" clean -fd || return 1
   head="$(git -C "$dir" rev-parse HEAD)"
@@ -199,9 +244,97 @@ ensurePackagingCheckout() {
     git -C "$pack" submodule update --init
   fi
   chownPackagingForks
+}
 
+syncForksToOrigin() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
   checkoutFork "${pack}/jellyfin-server" "${JELLYFIN_FORK_SERVER}" "${JELLYFIN_FORK_BRANCH}" || return 1
   checkoutFork "${pack}/jellyfin-web" "${JELLYFIN_FORK_WEB}" "${JELLYFIN_FORK_BRANCH}" || return 1
+}
+
+customImageNeedsRebuild() {
+  local pack="${JELLYFIN_PACKAGING_DIR}"
+  local img="${JELLYFIN_IMAGE}"
+  local stamp server_tip web_tip
+
+  if [ "$REBUILD_IMAGE" -eq 1 ]; then
+    printStep "Forced rebuild (--rebuild-image)"
+    return 0
+  fi
+  if ! docker image inspect "$img" >/dev/null 2>&1; then
+    printStep "Image ${img} is missing — will build"
+    return 0
+  fi
+
+  stamp="$(imageStampPath)"
+  printStep "Fetching forks (${JELLYFIN_FORK_BRANCH})…"
+  server_tip="$(fetchForkTip "${pack}/jellyfin-server" "${JELLYFIN_FORK_SERVER}" "${JELLYFIN_FORK_BRANCH}")" || return 2
+  web_tip="$(fetchForkTip "${pack}/jellyfin-web" "${JELLYFIN_FORK_WEB}" "${JELLYFIN_FORK_BRANCH}")" || return 2
+
+  if [ ! -f "$stamp" ]; then
+    local local_server local_web
+    local_server="$(git -C "${pack}/jellyfin-server" rev-parse HEAD)"
+    local_web="$(git -C "${pack}/jellyfin-web" rev-parse HEAD)"
+    if [ "$local_server" = "$server_tip" ] && [ "$local_web" = "$web_tip" ]; then
+      writeImageStamp
+      printStatus "No prior stamp; local forks already match origin — skipping rebuild"
+      return 1
+    fi
+    printStep "No prior stamp and origin has newer commits — will rebuild"
+    return 0
+  fi
+
+  if [ "$(stampValue IMAGE "$stamp")" != "$img" ] \
+    || [ "$(stampValue BRANCH "$stamp")" != "${JELLYFIN_FORK_BRANCH}" ] \
+    || [ "$(stampValue SERVER_REMOTE "$stamp")" != "${JELLYFIN_FORK_SERVER}" ] \
+    || [ "$(stampValue WEB_REMOTE "$stamp")" != "${JELLYFIN_FORK_WEB}" ] \
+    || [ "$(stampValue SERVER_SHA "$stamp")" != "$server_tip" ] \
+    || [ "$(stampValue WEB_SHA "$stamp")" != "$web_tip" ]; then
+    printStep "Forks or image config changed — will rebuild"
+    printStatus "server ${server_tip:0:12}  web ${web_tip:0:12}"
+    return 0
+  fi
+
+  printStatus "Forks unchanged (server ${server_tip:0:12}, web ${web_tip:0:12}) — skipping image rebuild"
+  return 1
+}
+
+ensureBuildPythonDeps() {
+  if ! command -v python3 &>/dev/null; then
+    printError "python3 is required to run jellyfin-packaging/build.py"
+    return 1
+  fi
+  if python3 -c "import git, yaml, packaging.version" 2>/dev/null; then
+    return 0
+  fi
+  if [ "$(id -u)" -eq 0 ] && command -v pacman &>/dev/null; then
+    printStep "Installing python-gitpython python-yaml python-packaging…"
+    pacman -S --needed --noconfirm python-gitpython python-yaml python-packaging || return 1
+    if python3 -c "import git, yaml, packaging.version" 2>/dev/null; then
+      return 0
+    fi
+  fi
+  printError "build.py needs GitPython, PyYAML, and packaging."
+  printError "Arch: sudo pacman -S python-gitpython python-yaml python-packaging"
+  return 1
+}
+
+patchPackagingForLocalDockerBuild() {
+  local py="${JELLYFIN_PACKAGING_DIR}/build.py"
+  local df="${JELLYFIN_PACKAGING_DIR}/docker/Dockerfile"
+  if [ ! -f "$py" ]; then
+    return 0
+  fi
+  # Upstream CI uses --no-cache. Local fork rebuilds should reuse layers and
+  # inherit host DNS — Debian slim in BuildKit often cannot resolve
+  # repo.jellyfin.org (curl: 6) otherwise.
+  if grep -q 'docker buildx build --progress=plain --no-cache' "$py"; then
+    printStep "Local Docker build: host network + layer cache"
+    sed -i 's/docker buildx build --progress=plain --no-cache/docker buildx build --progress=plain --network=host/' "$py"
+  fi
+  if [ -f "$df" ] && grep -q 'curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key' "$df"; then
+    sed -i 's|curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key|curl -fsSL --retry 8 --retry-all-errors --retry-delay 3 https://repo.jellyfin.org/jellyfin_team.gpg.key|' "$df"
+  fi
 }
 
 ensureCustomImage() {
@@ -211,39 +344,51 @@ ensureCustomImage() {
   local version="${img##*:}"
   version="${version%-${arch}}"
 
-  if [ "$REBUILD_IMAGE" -eq 0 ] && docker image inspect "$img" >/dev/null 2>&1; then
-    printStatus "Using existing image ${img} (pass --rebuild-image to rebuild)"
-    return 0
-  fi
-
-  if ! command -v python3 &>/dev/null; then
-    printError "python3 is required to run jellyfin-packaging/build.py"
-    return 1
-  fi
-  if ! python3 -c "import git, yaml, packaging.version" 2>/dev/null; then
-    printError "build.py needs GitPython, PyYAML, and packaging."
-    printError "Arch: sudo pacman -S python-gitpython python-yaml python-packaging"
-    return 1
-  fi
-
+  local need=0
   ensurePackagingCheckout || return 1
 
-  printStep "Building ${img} from forks (${JELLYFIN_FORK_BRANCH})…"
-  # Do not wrap this function in `||` / `if !`; that disables set -e inside and
-  # lets a failed docker build keep the previous tag as if it succeeded.
-  if ! (
-    cd "$pack"
-    python3 ./build.py "$version" docker "$arch" --local
-  ); then
-    printError "build.py failed — not restarting with the previous ${img} tag."
-    chownPackagingForks
+  customImageNeedsRebuild && need=0 || need=$?
+  if [ "$need" -eq 1 ]; then
+    return 0
+  fi
+  if [ "$need" -ne 0 ]; then
+    if docker image inspect "$img" >/dev/null 2>&1; then
+      printWarning "Could not fetch forks — keeping existing ${img}"
+      return 0
+    fi
+    printError "Could not fetch forks and ${img} is missing"
     return 1
   fi
+
+  ensureBuildPythonDeps || return 1
+  syncForksToOrigin || return 1
+  patchPackagingForLocalDockerBuild
+
+  printStep "Building ${img} from forks (${JELLYFIN_FORK_BRANCH})…"
+  local attempt=1
+  local max_attempts=3
+  while true; do
+    if (
+      cd "$pack"
+      python3 ./build.py "$version" docker "$arch" --local
+    ); then
+      break
+    fi
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      printError "build.py failed after ${max_attempts} attempts (often Docker DNS: repo.jellyfin.org)."
+      chownPackagingForks
+      return 1
+    fi
+    printWarning "Docker image build failed (attempt ${attempt}/${max_attempts}) — retrying in 15s…"
+    attempt=$((attempt + 1))
+    sleep 15
+  done
   if ! docker image inspect "$img" >/dev/null 2>&1; then
     printError "Build finished but image ${img} was not found."
     chownPackagingForks
     return 1
   fi
+  writeImageStamp
   chownPackagingForks
   printStatus "Built ${img}"
 }
@@ -299,14 +444,22 @@ deployDocker() {
   else
     # Custom: do not pull. Hub has no hide-items-amd64 tag; pull would fail or overwrite.
     # $compose_cmd --env-file .env pull jellyfin
-    ensureCustomImage
-    if [ "$?" -ne 0 ]; then
-      printError "Custom image rebuild failed — leaving the current container running."
-      return 1
+    local custom_ok=1
+    if ! ensureCustomImage; then
+      printError "Custom image rebuild failed."
+      if docker image inspect "${JELLYFIN_IMAGE}" >/dev/null 2>&1; then
+        printWarning "Starting existing ${JELLYFIN_IMAGE} so streaming stays up."
+        custom_ok=0
+      else
+        return 1
+      fi
     fi
   fi
   $compose_cmd --env-file .env up -d --force-recreate
   printStatus "Jellyfin started on 127.0.0.1:8096 (${JELLYFIN_IMAGE})"
+  if [ "${custom_ok:-1}" -eq 0 ]; then
+    return 1
+  fi
 
   if [ "${JELLYFIN_GPU:-nvidia}" != "none" ] && command -v nvidia-smi &>/dev/null; then
     sleep 3

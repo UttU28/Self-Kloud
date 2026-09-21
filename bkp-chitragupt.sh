@@ -7,10 +7,11 @@
 #   sudo ./bkp-chitragupt.sh backup    # rsync mirror now
 #   sudo ./bkp-chitragupt.sh all       # mount + install + first backup
 
-BKP_HDD_PARTITION="${BKP_HDD_PARTITION:-/dev/sdc1}"
+BKP_HDD_PARTITION="${BKP_HDD_PARTITION:-/dev/disk/by-uuid/7a4fd5f5-fe98-4624-9997-528328f3f147}"
 BKP_CHITRAGUPT_ROOT="${BKP_CHITRAGUPT_ROOT:-/mnt/bkp-chitragupt}"
 CHITRAGUPT_ROOT="${CHITRAGUPT_ROOT:-/mnt/chitragupt}"
-CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-7a4fd5f5-fe98-4624-9997-528328f3f147}"
+CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-80e12673-8d2f-4653-97a6-6ce881fad74d}"
+BKP_CHITRAGUPT_UUID="${BKP_CHITRAGUPT_UUID:-7a4fd5f5-fe98-4624-9997-528328f3f147}"
 BKP_LOG="${BKP_LOG:-/var/log/bkp-chitragupt.log}"
 BKP_LOCK="${BKP_LOCK:-/run/bkp-chitragupt.lock}"
 BKP_INSTALLED="/usr/local/sbin/bkp-chitragupt.sh"

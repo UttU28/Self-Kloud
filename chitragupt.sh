@@ -13,7 +13,7 @@
 #   sudo ./chitragupt.sh cleanup-old  # DELETE old Desktop copies (interactive)
 #   sudo ./chitragupt.sh all          # mount + copy + switch + nextcloud (no delete)
 
-CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-7a4fd5f5-fe98-4624-9997-528328f3f147}"
+CHITRAGUPT_UUID="${CHITRAGUPT_UUID:-80e12673-8d2f-4653-97a6-6ce881fad74d}"
 CHITRAGUPT_ROOT="${CHITRAGUPT_ROOT:-/mnt/chitragupt}"
 
 _chitragupt_info() { echo -e "\033[0;34m[chitragupt]\033[0m $*"; }
@@ -384,7 +384,7 @@ Recommended flow:
   sudo $0 nextcloud
   sudo $0 cleanup-old
 
-Disk UUID: ${CHITRAGUPT_UUID} (1 TB ext4, /dev/sda1)
+Disk UUID: ${CHITRAGUPT_UUID} (2 TB ext4, /mnt/chitragupt)
 EOF
   }
 

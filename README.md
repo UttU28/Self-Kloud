@@ -128,7 +128,7 @@ Copy the UUID (without quotes).
 **1. `chitragupt.sh`** (required on a new machine / new disk)
 
 ```bash
-CHITRAGUPT_UUID="7a4fd5f5-fe98-4624-9997-528328f3f147"   # ← your UUID
+CHITRAGUPT_UUID="80e12673-8d2f-4653-97a6-6ce881fad74d"   # ← 2TB chitragupt UUID
 CHITRAGUPT_ROOT="/mnt/chitragupt"                        # ← change only if you want a different mount point
 ```
 
