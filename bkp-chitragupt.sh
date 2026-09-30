@@ -96,10 +96,11 @@ run_bkp_chitragupt_mirror() {
   ensure_chitragupt_mounted force
   ensure_bkp_chitragupt_mounted
 
-  log "Starting rsync: ${source}/ -> ${dest}/"
+  log "Starting rsync: ${source}/ -> ${dest}/ (skipping jellyfin/)"
 
   rsync -aHAX --delete \
     --partial --partial-dir=.rsync-partial \
+    --exclude='/jellyfin/' \
     --exclude='lost+found/' \
     --exclude='.Trash-*/' \
     --exclude='.cache/' \
@@ -228,6 +229,7 @@ EOF
     echo "  Backup script:     ${BKP_INSTALLED}"
     echo "  Log:               ${BKP_LOG}"
     echo "  Schedule:          systemd timer daily at 4:00 AM (bkp-chitragupt.timer)"
+    echo "  Skips:             ${CHITRAGUPT_ROOT}/jellyfin/"
     echo ""
     echo "  Check timer:  systemctl status bkp-chitragupt.timer"
     echo "  Next run:     systemctl list-timers bkp-chitragupt.timer"
